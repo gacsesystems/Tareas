@@ -1,3 +1,5 @@
+@import 'tailwindcss';
+
 :root {
 	--bg: #0f1115;
 	--panel: #151821;
@@ -6,6 +8,7 @@
 	--accent: #5dd0ff;
 	--active: #243146;
 	--border: #222733;
+	color-scheme: dark;
 }
 
 * {

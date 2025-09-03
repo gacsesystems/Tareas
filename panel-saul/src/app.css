@@ -1,0 +1,70 @@
+:root {
+	--bg: #0f1115;
+	--panel: #151821;
+	--text: #e6e6e6;
+	--muted: #a8b0c0;
+	--accent: #5dd0ff;
+	--active: #243146;
+	--border: #222733;
+}
+
+* {
+	box-sizing: border-box;
+}
+html,
+body,
+#root {
+	height: 100%;
+	margin: 0;
+}
+body {
+	background: var(--bg);
+	color: var(--text);
+	font-family: Inter, system-ui, Arial, sans-serif;
+}
+
+.app {
+	display: grid;
+	grid-template-columns: 240px 1fr;
+	height: 100%;
+}
+
+.sidebar {
+	background: var(--panel);
+	border-right: 1px solid var(--border);
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.brand {
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	margin-bottom: 8px;
+}
+
+nav {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.link {
+	padding: 10px 12px;
+	border-radius: 8px;
+	text-decoration: none;
+	color: var(--text);
+	transition: background 0.15s ease;
+}
+.link:hover {
+	background: var(--active);
+}
+.link.active {
+	background: var(--active);
+	color: var(--accent);
+}
+
+.content {
+	padding: 24px;
+	overflow: auto;
+}

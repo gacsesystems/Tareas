@@ -43,6 +43,7 @@ app.MapExport();     // idem (con Csv helper)
 app.MapConfig();     // el de pesos
 app.MapHabitos();    // el de hábitos
 app.MapFinanzas();  // el de finanzas
+app.MapFinanzasContrapartes(); // el de contrapartes
 
 
 app.Run();

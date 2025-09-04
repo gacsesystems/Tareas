@@ -61,3 +61,41 @@ export interface EntradaDiario {
 	fecha: string;
 	contenidoMd: string;
 }
+
+// --- Finanzas Lite ---
+export enum TipoMovimiento {
+	Cobro = 1,
+	Pago = 2,
+}
+export enum EstatusMovimiento {
+	Pendiente = 1,
+	CobradoPagado = 2,
+	Vencido = 3,
+}
+
+export interface MovimientoFinanciero {
+	id: number;
+	tipo: TipoMovimiento; // 1=cobro, 2=pago
+	contraparte: string;
+	monto: number;
+	moneda: string; // 'MXN','USD',...
+	fechaObjetivo: string; // ISO
+	estatus: EstatusMovimiento; // 1,2,3
+	proyectoId?: number | null;
+	notas?: string | null;
+	creado?: string;
+	modificado?: string;
+}
+
+// --- Hábitos ---
+export interface Habito {
+	id: number;
+	nombre: string;
+	periodicidad: 'daily' | 'weekly';
+	meta?: number | null; // opcional
+	categoria?: string | null;
+	visibleFamiliar?: boolean;
+	streak?: number;
+	ultimoTick?: string | null; // ISO (ultima fecha marcada)
+	notas?: string | null;
+}

@@ -4,6 +4,9 @@ import Tareas from './routes/Tareas';
 import Proyectos from './routes/Proyectos';
 import Sesiones from './routes/Sesiones';
 import Diario from './routes/Diario';
+import Reportes from './routes/Reportes';
+import Finanzas from '@/routes/Finanzas';
+import Habitos from '@/routes/Habitos';
 import './app.css'; // opcional, ver estilos abajo
 
 export default function App() {
@@ -38,6 +41,9 @@ export default function App() {
 					<Route path="/proyectos" element={<Proyectos />} />
 					<Route path="/sesiones" element={<Sesiones />} />
 					<Route path="/diario" element={<Diario />} />
+					<Route path="/reportes" element={<Reportes />} />
+					<Route path="/finanzas" element={<Finanzas />} />
+					<Route path="/habitos" element={<Habitos />} />
 					{/* 404 simple */}
 					<Route
 						path="*"

@@ -41,5 +41,8 @@ app.MapSesiones();   // crea archivo con tus endpoints actuales
 app.MapDiario();     // idem
 app.MapExport();     // idem (con Csv helper)
 app.MapConfig();     // el de pesos
+app.MapHabitos();    // el de hábitos
+app.MapFinanzas();  // el de finanzas
+
 
 app.Run();

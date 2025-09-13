@@ -1,0 +1,987 @@
+{
+    "version": "1.0",
+    "entities": {
+        "eventos": {
+            "list_defaults": {
+                "order": ["fecha_inicio ASC"],
+                "columns": [
+                    "titulo",
+                    "fecha_inicio",
+                    "fecha_fin",
+                    "tipo_evento_id",
+                    "all_day",
+                    "recordatorio_inbox"
+                ]
+            },
+            "fields": {
+                "id": { "component": "Badge", "label": "ID", "readonly": true },
+                "titulo": {
+                    "component": "Text",
+                    "label": "Título",
+                    "props": {
+                        "maxLength": 200,
+                        "placeholder": "Junta / Ballet / Médico"
+                    },
+                    "validations": ["required", "max:200"]
+                },
+                "tipo_evento_id": {
+                    "component": "Autocomplete",
+                    "label": "Tipo",
+                    "datasource": "tipo_evento",
+                    "props": { "allowCreate": true, "showColor": true }
+                },
+                "fecha_inicio": {
+                    "component": "DateTime",
+                    "label": "Inicio",
+                    "validations": ["required"]
+                },
+                "fecha_fin": {
+                    "component": "DateTime",
+                    "label": "Fin",
+                    "visibleWhen": "all_day===false"
+                },
+                "all_day": {
+                    "component": "Toggle",
+                    "label": "Todo el día",
+                    "default": false
+                },
+                "rrule": {
+                    "component": "RRuleBuilder",
+                    "label": "Repetición",
+                    "nullable": true,
+                    "help": "Repite semanalmente, días específicos, etc."
+                },
+                "exdates": {
+                    "component": "DateMulti",
+                    "label": "Excluir fechas",
+                    "nullable": true
+                },
+                "timezone": {
+                    "component": "TZSelect",
+                    "label": "Zona horaria",
+                    "nullable": true
+                },
+                "proyecto_id": {
+                    "component": "Autocomplete",
+                    "label": "Proyecto",
+                    "datasource": "proyectos",
+                    "nullable": true
+                },
+                "tarea_id": {
+                    "component": "Autocomplete",
+                    "label": "Tarea",
+                    "datasource": "tareas",
+                    "nullable": true
+                },
+                "persona_id": {
+                    "component": "Autocomplete",
+                    "label": "Persona",
+                    "datasource": "personas",
+                    "nullable": true
+                },
+                "recordatorio_inbox": {
+                    "component": "Toggle",
+                    "label": "Mostrar en Inbox de Hoy",
+                    "default": false
+                },
+                "notas_md": {
+                    "component": "Markdown",
+                    "label": "Notas",
+                    "props": { "rows": 6 }
+                },
+                "attachments": {
+                    "component": "FileDropzone",
+                    "label": "Adjuntos",
+                    "bind": "archivables",
+                    "props": { "accept": "*/*", "multiple": true }
+                },
+                "created_at": {
+                    "component": "Badge",
+                    "label": "Creado",
+                    "readonly": true,
+                    "format": "datetime"
+                }
+            }
+        },
+
+        "timeblocks": {
+            "list_defaults": {
+                "order": ["fecha ASC", "hora_inicio ASC"],
+                "columns": [
+                    "fecha",
+                    "hora_inicio",
+                    "hora_fin",
+                    "categoria",
+                    "capacidad_min",
+                    "disponible"
+                ]
+            },
+            "fields": {
+                "id": { "component": "Badge", "label": "ID", "readonly": true },
+                "fecha": {
+                    "component": "Date",
+                    "label": "Fecha",
+                    "validations": ["required"]
+                },
+                "hora_inicio": {
+                    "component": "Time",
+                    "label": "Inicio",
+                    "validations": ["required"]
+                },
+                "hora_fin": {
+                    "component": "Time",
+                    "label": "Fin",
+                    "validations": ["required"]
+                },
+                "categoria": {
+                    "component": "Text",
+                    "label": "Categoría",
+                    "props": {
+                        "placeholder": "deep work / admin / familia / ..."
+                    }
+                },
+                "descripcion": {
+                    "component": "Text",
+                    "label": "Descripción",
+                    "props": { "maxLength": 200 }
+                },
+                "disponible": {
+                    "component": "Toggle",
+                    "label": "Disponible para tareas",
+                    "default": true
+                },
+                "capacidad_min": {
+                    "component": "Number",
+                    "label": "Capacidad (min)",
+                    "props": { "min": 0, "max": 600 },
+                    "help": "Minutos efectivos encajables"
+                },
+                "parkinson_enforce": {
+                    "component": "Toggle",
+                    "label": "Límite Parkinson",
+                    "default": false
+                },
+                "parkinson_max_min": {
+                    "component": "Number",
+                    "label": "Máximo min",
+                    "props": { "min": 5, "max": 240 },
+                    "visibleWhen": "parkinson_enforce===true"
+                },
+                "evento_id": {
+                    "component": "Link",
+                    "label": "Evento origen",
+                    "readonly": true,
+                    "nullable": true
+                },
+                "created_at": {
+                    "component": "Badge",
+                    "label": "Creado",
+                    "readonly": true,
+                    "format": "datetime"
+                }
+            },
+            "computed": {
+                "duracion_min": "differenceInMinutes(hora_fin, hora_inicio)"
+            }
+        },
+
+        "archivos": {
+            "fields": {
+                "id": { "component": "Badge", "label": "ID", "readonly": true },
+                "filename": {
+                    "component": "Text",
+                    "label": "Archivo",
+                    "readonly": true
+                },
+                "mime": {
+                    "component": "Badge",
+                    "label": "Tipo",
+                    "readonly": true
+                },
+                "size_bytes": {
+                    "component": "Badge",
+                    "label": "Tamaño",
+                    "readonly": true,
+                    "format": "filesize"
+                }
+            }
+        }
+    }
+}
+
+
+{
+  "version": "1.0",
+  "entities": {
+    "recursos": {
+      "list_defaults": {
+        "order": ["status ASC", "prioridad DESC", "proposito ASC", "duracion_min_est ASC"],
+        "columns": ["titulo","tipo","proposito","prioridad","duracion_min_est","plan_consumo_fecha","status"]
+      },
+      "fields": {
+        "id": { "component": "Badge", "label": "ID", "readonly": true },
+        "titulo": {
+          "component": "Text",
+          "label": "Título",
+          "props": { "maxLength": 220, "placeholder": "Título del video/libro/artículo" },
+          "validations": ["required","max:220"]
+        },
+        "tipo": {
+          "component": "ChipGroup",
+          "label": "Tipo",
+          "options": ["video","podcast","libro","articulo","pelicula","curso","documento","musica","otro"],
+          "default": "video"
+        },
+        "autor": { "component": "Text", "label": "Autor/Canal", "props": { "maxLength": 160 } },
+        "anio": { "component": "Number", "label": "Año", "props": { "min": 1900, "max": 2100 } },
+        "genero": { "component": "Text", "label": "Género/Tag", "props": { "maxLength": 80 } },
+        "fuente": {
+          "component": "Select",
+          "label": "Fuente",
+          "options": ["youtube","vimeo","spotify","web","pdf","drive","local","otro"],
+          "nullable": true
+        },
+        "url": {
+          "component": "Url",
+          "label": "Enlace",
+          "nullable": true,
+          "visibleWhen": "archivo_id==null"
+        },
+        "archivo_id": {
+          "component": "FilePicker",
+          "label": "Archivo",
+          "nullable": true,
+          "visibleWhen": "url==null"
+        },
+        "duracion_min_est": { "component": "Number", "label": "Duración (min)", "props": { "min": 1, "max": 10000 } },
+        "requiere_pantalla": { "component": "Toggle", "label": "Requiere pantalla", "default": true },
+        "apto_fondo": { "component": "Toggle", "label": "Apto de fondo", "default": false },
+        "apto_auto": { "component": "Toggle", "label": "Apto para auto", "default": false },
+        "proposito": {
+          "component": "ChipGroup",
+          "label": "Propósito",
+          "options": ["educativo","inspirador","entretenimiento"],
+          "default": "educativo"
+        },
+        "prioridad": {
+          "component": "ChipGroup",
+          "label": "Prioridad",
+          "options": ["baja","media","alta"],
+          "default": "media"
+        },
+        "plan_consumo_fecha": { "component": "Date", "label": "Plan para" },
+        "fecha_caducidad": { "component": "Date", "label": "Caduca" },
+        "status": {
+          "component": "ChipGroup",
+          "label": "Estado",
+          "options": ["pendiente","en_progreso","consumido","archivado","vencido"],
+          "default": "pendiente"
+        },
+        "tarea_id": { "component": "Link", "label": "Tarea ligada", "readonly": true, "nullable": true },
+        "conversion_modo": {
+          "component": "ChipGroup",
+          "label": "Conversión a tarea",
+          "options": ["manual","semi","auto"],
+          "default": "semi"
+        },
+        "ultimo_sugerido_at": { "component": "Badge", "label": "Último sugerido", "readonly": true, "format": "datetime" },
+        "notas_md": { "component": "Markdown", "label": "Notas", "props": { "rows": 6 } },
+        "etiquetas": { "component": "TagMorph", "label": "Etiquetas", "bind": "etiquetas" },
+        "created_at": { "component": "Badge", "label": "Creado", "readonly": true, "format": "datetime" }
+      },
+      "actions": {
+        "convertir_en_tarea": { "label": "Convertir en tarea", "icon": "CheckSquare" },
+        "planear_en_bloque": { "label": "Planear en bloque", "icon": "CalendarRange" },
+        "archivar": { "label": "Archivar", "icon": "Archive" }
+      }
+    }
+  },
+  "ui_rules": {
+    "encaje_sugerido": "si apto_auto -> proponer bloque 'Traslado'; si apto_fondo && !requiere_pantalla -> 'Admin/Soporte'; si requiere_pantalla -> 'Aprendizaje/Deep Work'",
+    "caducidad": "si hoy > fecha_caducidad && status in ['pendiente','en_progreso'] => status='vencido' o mover a 'archivado'",
+    "weekly_pick": "proponer 1-2 recursos por semana (prioridad alta/educativo, duración corta primero) y convertir a tarea"
+  }
+}
+
+{
+  "version": "1.0",
+  "entities": {
+    "recursos": {
+      "list_defaults": {
+        "order": [
+          "status ASC",
+          "prioridad DESC",
+          "proposito ASC",
+          "duracion_min_est ASC",
+          "created_at DESC"
+        ],
+        "columns": [
+          "titulo",
+          "tipo",
+          "proposito",
+          "prioridad",
+          "duracion_min_est",
+          "plan_consumo_fecha",
+          "status"
+        ],
+        "filters": [
+          { "field": "tipo", "component": "MultiChip", "options": ["video","podcast","libro","articulo","pelicula","curso","documento","musica","otro"] },
+          { "field": "proposito", "component": "MultiChip", "options": ["educativo","inspirador","entretenimiento"] },
+          { "field": "status", "component": "MultiChip", "options": ["pendiente","en_progreso","consumido","archivado","vencido"] },
+          { "field": "prioridad", "component": "MultiChip", "options": ["alta","media","baja"] }
+        ]
+      },
+      "fields": {
+        "id": { "component": "Badge", "label": "ID", "readonly": true },
+        "titulo": {
+          "component": "Text",
+          "label": "Título",
+          "props": { "maxLength": 220, "placeholder": "Ej. 'DDD con Laravel – Módulo 1'" },
+          "validations": ["required","max:220"]
+        },
+        "tipo": {
+          "component": "ChipGroup",
+          "label": "Tipo",
+          "options": ["video","podcast","libro","articulo","pelicula","curso","documento","musica","otro"],
+          "default": "video"
+        },
+        "autor": { "component": "Text", "label": "Autor/Canal/Editorial", "props": { "maxLength": 160 } },
+        "anio": { "component": "Number", "label": "Año", "props": { "min": 1900, "max": 2100 } },
+        "genero": { "component": "Text", "label": "Género/Tag", "props": { "maxLength": 80 } },
+
+        "fuente": {
+          "component": "Select",
+          "label": "Fuente",
+          "options": ["youtube","vimeo","spotify","web","pdf","drive","local","otro"],
+          "nullable": true
+        },
+        "url": {
+          "component": "Url",
+          "label": "Enlace",
+          "nullable": true,
+          "visibleWhen": "archivo_id==null"
+        },
+        "archivo_id": {
+          "component": "FilePicker",
+          "label": "Archivo",
+          "nullable": true,
+          "visibleWhen": "url==null"
+        },
+
+        "duracion_min_est": { "component": "Number", "label": "Duración (min)", "props": { "min": 1, "max": 10000 } },
+        "requiere_pantalla": { "component": "Toggle", "label": "Requiere pantalla", "default": true },
+        "apto_fondo": { "component": "Toggle", "label": "Apto de fondo", "default": false },
+        "apto_auto": { "component": "Toggle", "label": "Apto para auto", "default": false },
+
+        "proposito": {
+          "component": "ChipGroup",
+          "label": "Propósito",
+          "options": ["educativo","inspirador","entretenimiento"],
+          "default": "educativo"
+        },
+        "prioridad": {
+          "component": "ChipGroup",
+          "label": "Prioridad",
+          "options": ["baja","media","alta"],
+          "default": "media"
+        },
+
+        "plan_consumo_fecha": { "component": "Date", "label": "Plan para" },
+        "fecha_caducidad": { "component": "Date", "label": "Caduca" },
+        "status": {
+          "component": "ChipGroup",
+          "label": "Estado",
+          "options": ["pendiente","en_progreso","consumido","archivado","vencido"],
+          "default": "pendiente"
+        },
+
+        "tarea_id": { "component": "Link", "label": "Tarea ligada", "readonly": true, "nullable": true },
+        "conversion_modo": {
+          "component": "ChipGroup",
+          "label": "Conversión a tarea",
+          "options": ["manual","semi","auto"],
+          "default": "semi"
+        },
+        "ultimo_sugerido_at": { "component": "Badge", "label": "Último sugerido", "readonly": true, "format": "datetime" },
+
+        "notas_md": { "component": "Markdown", "label": "Notas", "props": { "rows": 6 } },
+        "created_at": { "component": "Badge", "label": "Creado", "readonly": true, "format": "datetime" },
+        "updated_at": { "component": "Badge", "label": "Actualizado", "readonly": true, "format": "relativeTime" }
+      },
+      "actions": {
+        "abrir": { "label": "Abrir", "icon": "ExternalLink", "visibleWhen": "url!=null || archivo_id!=null" },
+        "convertir_en_tarea": { "label": "Convertir en tarea", "icon": "CheckSquare", "visibleWhen": "tarea_id==null" },
+        "ver_tarea": { "label": "Ir a tarea", "icon": "ArrowRight", "visibleWhen": "tarea_id!=null" },
+        "planear_en_bloque": { "label": "Planear en bloque", "icon": "CalendarRange" },
+        "marcar_consumido": { "label": "Marcar consumido", "icon": "Eye" },
+        "archivar": { "label": "Archivar", "icon": "Archive", "visibleWhen": "status!='archivado'" },
+        "restaurar": { "label": "Restaurar", "icon": "History", "visibleWhen": "status=='archivado' || status=='vencido'" }
+      },
+      "ui_rules": {
+        "exclusive_source": "No permitir url y archivo_id simultáneamente; si sube archivo, limpiar url.",
+        "caducidad": "Si hoy > fecha_caducidad && status in ['pendiente','en_progreso'] => sugerir mover a 'archivado' o 'vencido'.",
+        "weekly_pick": "En revisión semanal, sugerir 1–2 recursos con prioridad alta, proposito educativo, y duracion corta.",
+        "encaje_timeblocking": "Sugerir bloque según flags: apto_auto => Traslado; apto_fondo && !requiere_pantalla => Admin/Soporte; requiere_pantalla => Aprendizaje/Deep Work."
+      },
+      "suggestions": {
+        "titulo": ["'Curso X – Módulo 1'","'Charla Y (resumen)'"],
+        "genero": ["tech","management","música","documental"],
+        "duraciones_comunes": [5, 10, 25, 45, 60, 90]
+      }
+    },
+
+    "archivos": {
+      "list_defaults": {
+        "order": ["created_at DESC"],
+        "columns": ["filename","mime","size_bytes","created_at"]
+      },
+      "fields": {
+        "id": { "component": "Badge", "label": "ID", "readonly": true },
+        "filename": { "component": "Text", "label": "Archivo", "readonly": true },
+        "mime": { "component": "Badge", "label": "MIME", "readonly": true },
+        "size_bytes": { "component": "Badge", "label": "Tamaño", "readonly": true, "format": "filesize" },
+        "storage_path": { "component": "Code", "label": "Path", "readonly": true }
+      },
+      "actions": {
+        "preview": { "label": "Vista previa", "icon": "Eye", "visibleWhen": "mime?.startsWith('image/') || mime=='application/pdf' || mime?.startsWith('audio/')" },
+        "download": { "label": "Descargar", "icon": "Download" },
+        "delete": { "label": "Eliminar", "icon": "Trash2" }
+      }
+    },
+
+    "resourceables": {
+      "embed": {
+        "asSection": "Recursos",
+        "emptyState": "Sin recursos vinculados",
+        "columns": ["favicon_fuente","titulo","duracion_min_est","proposito","prioridad","status"],
+        "rowActions": ["abrir","convertir_en_tarea","ver_tarea","archivar"]
+      }
+    }
+  }
+}
+
+{
+  "version": "1.1",
+  "entities": {
+    "personas": {
+      "list_defaults": {
+        "columns": ["nombre","relacion","skill","will","delegation_level","activo"],
+        "order": ["activo DESC","nombre ASC"],
+        "filters": [
+          { "field": "relacion", "component": "MultiChip", "options": ["familiar","amigo","colaborador","cliente","otro"] },
+          { "field": "activo", "component": "ChipGroup", "options": [true,false] }
+        ]
+      },
+      "fields": {
+        "id":        { "component": "Badge", "label": "ID", "readonly": true },
+        "nombre":    { "component": "Text", "label": "Nombre", "validations": ["required","max:120"] },
+        "relacion":  { "component": "ChipGroup", "label": "Relación", "options": ["familiar","amigo","colaborador","cliente","otro"], "nullable": true },
+        "email":     { "component": "Email", "label": "Email", "nullable": true },
+        "telefono":  { "component": "Text", "label": "Teléfono", "props": { "maxLength": 40 }, "nullable": true },
+        "activo":    { "component": "Toggle", "label": "Activo", "default": true },
+        "notas":     { "component": "Markdown", "label": "Notas" },
+
+        "skill": { "component": "Slider", "label": "Skill", "props": { "min": 0, "max": 10, "step": 1 } },
+        "will":  { "component": "Slider", "label": "Will",  "props": { "min": 0, "max": 10, "step": 1 } },
+        "delegation_level": {
+          "component": "ChipGroup",
+          "label": "Nivel base",
+          "options": [1,2,3,4,5],
+          "help": "1=Haz exactamente lo que digo · 5=Autonomía total"
+        },
+        "last_review_at": { "component": "Badge", "label": "Última revisión", "readonly": true, "format": "relativeTime" }
+      },
+      "actions": {
+        "revisar_skill_will": { "label": "Registrar revisión", "icon": "ClipboardCheck" },
+        "desactivar": { "label": "Desactivar", "icon": "UserX", "visibleWhen": "activo==true" }
+      }
+    },
+
+    "tareas_delegacion_embed": {
+      "asSection": "Delegación",
+      "fields": {
+        "creado_por_id": { "component": "AvatarPicker", "label": "Creada por", "datasource": "personas" },
+        "delegation_level_rec": { "component": "Badge", "label": "Nivel recomendado", "readonly": true },
+        "delegation_level_applied": { "component": "ChipGroup", "label": "Nivel aplicado", "options": [1,2,3,4,5] },
+        "skill_override": { "component": "Slider", "label": "Skill (override)", "props": { "min": 0, "max": 10 }, "nullable": true },
+        "will_override":  { "component": "Slider", "label": "Will (override)",  "props": { "min": 0, "max": 10 }, "nullable": true },
+        "sla_fecha": { "component": "Date", "label": "SLA / Compromiso" },
+        "ultimo_movimiento_at": { "component": "Badge", "label": "Últ. movimiento", "readonly": true, "format": "relativeTime" },
+        "escalado": { "component": "Toggle", "label": "Escalado" },
+
+        "interest_hits": { "component": "Counter", "label": "Interés (👀)", "props": { "min": 0, "step": 1 } },
+        "interest_last_at": { "component": "Badge", "label": "Últ. interés", "readonly": true, "format": "relativeTime" }
+      },
+      "actions": {
+        "aplicar_recomendado": { "label": "Aplicar recomendado", "icon": "Sparkles" },
+        "ping": { "label": "Ping", "icon": "Bell" },
+        "marcar_interes": { "label": "Registrar interés (+1)", "icon": "Eye" },
+        "escalar": { "label": "Escalar", "icon": "ArrowUpRight" },
+        "reasignar": { "label": "Reasignar", "icon": "UserSwitch" }
+      },
+      "ui_rules": {
+        "warn_quieto": "Mostrar badge 'Sin cambios' si now - ultimo_movimiento_at >= 3d",
+        "sla_sem": "Semáforo (rojo vencido, ámbar <=2d)",
+        "bloqueada_no_boost": "Si bloqueada, deshabilitar boost 24h en la UI"
+      }
+    },
+
+    "proyectos_delegacion_embed": {
+      "asSection": "Delegación del proyecto",
+      "fields": {
+        "owner_id": { "component": "Autocomplete", "label": "Owner", "datasource": "personas" },
+        "delegation_level_applied": { "component": "ChipGroup", "label": "Nivel proyecto", "options": [1,2,3,4,5] },
+        "interest_hits": { "component": "Counter", "label": "Interés (👀)", "props": { "min": 0, "step": 1 } },
+        "interest_last_at": { "component": "Badge", "label": "Últ. interés", "readonly": true, "format": "relativeTime" }
+      },
+      "help": "Las tareas nuevas heredan el nivel por defecto (puedes cambiarlo por tarea)."
+    }
+  }
+}
+
+{
+  "version": "1.0",
+  "i18n": "es-MX",
+  "theme": {
+    "chips": {
+      "prioridad": {"baja":"#9CA3AF","media":"#3B82F6","alta":"#EF4444"},
+      "moscow": {"M":"#DC2626","S":"#F59E0B","C":"#10B981","W":"#6B7280"},
+      "horizon": {"H1":"#3B82F6","H2":"#8B5CF6","H3":"#0EA5E9"},
+      "estado": {
+        "backlog":"#9CA3AF","siguiente":"#14B8A6","hoy":"#3B82F6",
+        "en_curso":"#F59E0B","en_revision":"#8B5CF6","hecha":"#10B981","bloqueada":"#EF4444"
+      },
+      "eisenhower": {"Q1":"#EF4444","Q2":"#10B981","Q3":"#F59E0B","Q4":"#9CA3AF"}
+    }
+  },
+
+  "tareas": {
+    "listOrder": [
+      "frog:desc",          // true primero
+      "is_rock:desc",
+      "ranking:asc",        // empuje manual
+      "score_final:desc"    // calculado
+    ],
+    "caps": {
+      "frog_per_day": 1,
+      "rocks_per_week": 3,
+      "active_boosts_max": 3
+    },
+    "decay": {
+      "interest_hits_weekly_decay": 0.10  // -10% hits/semana sin movimiento
+    },
+    "visibility": {
+      "simpleCard": [
+        "titulo",
+        "estado",
+        "responsable",
+        "pomos_estimados",
+        "pomos_realizados",
+        "fecha_limite",
+        "score_final",
+        "chips.eisenhower_quadrant",
+        "chips.moscow",
+        "chips.horizon",
+        "badges.frog",
+        "badges.rock",
+        "badges.pareto",
+        "badges.boost_24h",
+        "badges.bloqueada",
+        "interest_hits"
+      ],
+      "advancedToggleDefaults": false,
+      "advancedFields": [
+        "impacto","valor","urgencia_manual","eficiencia","stakeholders",
+        "kash","family_friendly","kaizen","riesgo_oportunidad",
+        "ranking","score_boost_until","score_boost_factor",
+        "dificultad","habito_id",
+        "delegation_level_rec","delegation_level_applied",
+        "skill_override","will_override","sla_fecha",
+        "ultimo_movimiento_at","bloqueo_motivo","pareto"
+      ],
+      "modals": {
+        "whyThisOrder": [
+          "mcda_breakdown",
+          "multipliers.eisenhower",
+          "multipliers.moscow",
+          "multipliers.kash",
+          "multipliers.frog",
+          "multipliers.horizon",
+          "operatives.antiguedad",
+          "operatives.bloqueo",
+          "operatives.pareto_rock",
+          "operatives.riesgo",
+          "operatives.progress",
+          "operatives.overrun",
+          "operatives.boost24h",
+          "operatives.family",
+          "operatives.kaizen",
+          "operatives.unblock",
+          "interest_boost"
+        ],
+        "delegation": [
+          "responsable",
+          "delegation_level_rec",
+          "delegation_level_applied",
+          "skill_override","will_override",
+          "sla_fecha"
+        ],
+        "timeFit": [
+          "capacidad_dia_min",
+          "costo_seleccion_min",
+          "semaforo_encaje"
+        ]
+      }
+    },
+
+    "components": {
+      "titulo": {"component":"TextInput","props":{"maxLength":300,"required":true,"prefixVerbHint":true}},
+      "estado": {"component":"Select","props":{"options":["backlog","siguiente","hoy","en_curso","en_revision","hecha","bloqueada"]}},
+      "responsable": {"component":"AssigneePicker","props":{"allowSelf":true}},
+      "pomos_estimados": {"component":"Number","props":{"min":0,"max":255,"step":1}},
+      "pomos_realizados": {"component":"ProgressDots","props":{"editable":false}},
+      "fecha_limite": {"component":"DateTimePicker","props":{"nullable":true,"badges":true}},
+      "score_final": {"component":"ScoreChip","props":{"scale":"0-100"}},
+      "chips.eisenhower_quadrant": {"component":"Chip","props":{"map":"eisenhower"}},
+      "chips.moscow": {"component":"Chip","props":{"map":"moscow"}},
+      "chips.horizon": {"component":"Chip","props":{"map":"horizon"}},
+      "badges.frog": {"component":"Badge","props":{"icon":"🐸"}},
+      "badges.rock": {"component":"Badge","props":{"icon":"⭐"}},
+      "badges.pareto": {"component":"Badge","props":{"icon":"⚡","title":"Top 20%"}},
+      "badges.boost_24h": {"component":"CountdownChip","props":{"title":"Boost 24h"}},
+      "badges.bloqueada": {"component":"Badge","props":{"variant":"danger","title":"Bloqueada"}},
+      "interest_hits": {"component":"Counter","props":{"incButton":true,"decButton":true,"help":"Veces que preguntaron por esta tarea"}},
+
+      "impacto": {"component":"Slider","props":{"min":0,"max":10}},
+      "valor": {"component":"Slider","props":{"min":0,"max":10}},
+      "urgencia_manual": {"component":"Slider","props":{"min":0,"max":10,"nullable":true}},
+      "eficiencia": {"component":"Slider","props":{"min":0,"max":10}},
+      "stakeholders": {"component":"Slider","props":{"min":0,"max":10}},
+      "kash": {"component":"ChipGroup","props":{"options":["K","A","S","H"],"nullable":true}},
+      "family_friendly": {"component":"Toggle"},
+      "kaizen": {"component":"Toggle"},
+      "riesgo_oportunidad": {"component":"Range","props":{"min":-0.2,"max":0.2,"step":0.01}},
+      "ranking": {"component":"RankHandle","props":{"step":100,"dragDrop":true}},
+      "score_boost_until": {"component":"DateTimeReadonly"},
+      "score_boost_factor": {"component":"Number","props":{"min":1.0,"max":1.2,"step":0.01}},
+      "dificultad": {"component":"Select","props":{"options":["trivial/mecánico","requiere_pensar_leer_investigar","muy_exigente"]}},
+      "habito_id": {"component":"RelationPicker","props":{"entity":"habitos","nullable":true}},
+      "delegation_level_rec": {"component":"Badge","props":{"variant":"hint"}},
+      "delegation_level_applied": {"component":"ChipGroup","props":{"options":[1,2,3,4,5]}},
+      "skill_override": {"component":"Slider","props":{"min":0,"max":10,"nullable":true}},
+      "will_override": {"component":"Slider","props":{"min":0,"max":10,"nullable":true}},
+      "sla_fecha": {"component":"DatePicker","props":{"badges":true}},
+      "ultimo_movimiento_at": {"component":"RelativeTime","props":{"icon":"clock-rotate-left"}},
+      "bloqueo_motivo": {"component":"Text","props":{"maxLength":300}}
+    },
+
+    "actions": {
+      "markFrog": {"visibleWhen":"!frog && canAddFrogToday","effects":["set:frog=true","set:frog_date=today"]},
+      "toggleRock": {"effects":["set:is_rock=!is_rock"]},
+      "boost24h": {
+        "visibleWhen":"!bloqueada && activeBoosts < caps.active_boosts_max",
+        "effects": ["set:score_boost_until=now+24h","set:score_boost_factor=clamp(input||1.15,1.1,1.2)"],
+        "safety": ["noStack","capPerUser"]
+      },
+      "interestPlus": {"effects":["inc:interest_hits","+set:interest_last_at=now"]},
+      "interestMinus": {"effects":["dec:interest_hits>=0"]},
+      "delegateQuick": {"effects":["openModal:'delegation'"]},
+      "whyThisOrder": {"effects":["openModal:'whyThisOrder'"]},
+      "checkTimeFit": {"effects":["openModal:'timeFit'"]}
+    },
+
+    "rules": {
+      "eisenhowerQuadrant": "Q1 if (eisen_importante && eisen_urgente) else Q2 if (eisen_importante) else Q3 if (eisen_urgente) else Q4",
+      "urgenciaDerivada": "mapDaysTo0to10(fecha_limite)",
+      "mcda": "0.30*impacto + 0.25*valor + 0.20*urgencia + 0.15*eficiencia + 0.10*stakeholders",
+      "multipliers": {
+        "eisenhower": {"Q1":1.0,"Q2":0.8,"Q3":0.5,"Q4":0.2},
+        "moscow": {"M":1.2,"S":1.1,"C":1.0,"W":0.5},
+        "kash": {"S":1.1,"H":1.1,"default":1.0},
+        "frog": {"true":1.3,"false":1.0},
+        "horizon": {"H1":1.0,"H2":1.15,"H3":1.30}
+      },
+      "operatives": {
+        "bonusAntiguedad": "1 + min(0.05*weeksSince(fecha), 0.30)",
+        "penalBloqueo": "bloqueada ? 0.80 : 1.00",
+        "bonusParetoRock": "(pareto || is_rock) ? 1.10 : 1.00",
+        "multRiesgo": "1 + clamp(riesgo_oportunidad,-0.20,0.20)",
+        "multProgress": "1 + 0.15 * min(pomos_realizados / nullIfZero(pomos_estimados), 1)",
+        "multOverrun": "max(0.70, 1/(1 + 0.10*max(0, pomos_realizados - pomos_estimados)))",
+        "multBoost24h": "(now < score_boost_until && !bloqueada) ? min(score_boost_factor||1.15,1.20) : 1.00",
+        "multFamily": "family_friendly ? 1.10 : 1.00",
+        "multKaizen": "kaizen ? 1.05 : 1.00",
+        "multUnblock": "1 + 0.05 * min(dependientes_bloqueados||0, 3)"
+      },
+      "interestBoost": "1 + min(interest_hits * 0.02, 0.20)",
+      "scoreCore": "(mcda * mult.eisenhower) * mult.moscow * mult.kash * mult.frog * mult.horizon",
+      "scoreFinal": "scoreCore * bonusAntiguedad * penalBloqueo * bonusParetoRock * multRiesgo * multProgress * multOverrun * multBoost24h * multFamily * multKaizen * multUnblock * interestBoost"
+    },
+
+    "timeBlocking": {
+      "fitCheck": {
+        "costoSeleccionMin": "sum(pomos_estimados)*25",
+        "capacidadDiaMin": "sum(bloques_disponibles_min)",
+        "trafficLight": {
+          "green": "capacidad >= costo",
+          "yellow": "capacidad - costo < 15",
+          "red": "capacidad < costo"
+        },
+        "suggestions": [
+          "mover_frog",
+          "dividir_tarea",
+          "pasar_a_manana"
+        ]
+      },
+      "dificultadSugerencia": {
+        "trivial/mecánico": "bloques_admin_tarde",
+        "requiere_pensar_leer_investigar": "bloques_foco_manana",
+        "muy_exigente": "deep_work_prime"
+      }
+    }
+  },
+
+  "proyectos": {
+    "listOrder": ["estrategico:desc","prioridad:desc","status:asc","progreso_pct:desc","updated_at:desc"],
+    "simpleCard": ["nombre","prioridad","estrategico","progreso_pct","proxima_accion_tarea_id","status"],
+    "advancedFields": ["fec_inicio_plan","fec_fin_plan","fec_inicio_real","fec_fin_real","criterio_cierre","objetivo_principal","owner_id","delegation_level_applied","interest_hits","interest_last_at","notas_md"],
+    "actions": {
+      "setNextActionAuto": {"effects":["set:proxima_accion_modo='auto'"]},
+      "setNextActionManual": {"effects":["set:proxima_accion_modo='manual'","openTaskPicker"]},
+      "interestPlus": {"effects":["inc:interest_hits","+set:interest_last_at=now"]},
+      "weeklySummary": {"effects":["openReport:'avance_semanal'"]}
+    }
+  },
+
+  "eventos_timeblocking": {
+    "eventCard": ["titulo","tipo_evento_id","fecha_inicio","fecha_fin","all_day","recordatorio_inbox","rrule","exdates"],
+    "suggestions": ["mostrar_en_hoy_agenda","encaje_con_tareas_por_disponibilidad"],
+    "timeBlocks": {
+      "categorias": ["DeepWork","Estrategico","Equipo/Admin","Finanzas","Familia","Aprendizaje"],
+      "reglas": {
+        "noHardBlock": true,
+        "soloAvisoSiNoCabe": true
+      }
+    }
+  },
+
+  "recursos": {
+    "listOrder": ["prioridad:desc","status:asc","plan_consumo_fecha:asc","created_at:desc"],
+    "simpleCard": ["titulo","tipo","proposito","prioridad","duracion_min_est","requiere_pantalla","apto_fondo","apto_auto","status"],
+    "advancedFields": ["autor","anio","genero","fuente","url","archivo_id","conversion_modo","ultimo_sugerido_at","fecha_caducidad","notas_md"],
+    "actions": {
+      "convertirATarea": {"effects":["createTaskFromResource","link:tarea_id"]},
+      "marcarConsumido": {"effects":["set:status='consumido'"]}
+    }
+  },
+
+  "habitos": {
+    "simpleCard": ["nombre","tipo","periodicidad","peso","streak","mejor_streak","activo"],
+    "advancedFields": ["unidad","meta","umbral_cumplimiento","times_per_week","dias_semana_bitmap","min_dias_mes","fecha_inicio","freezes_restantes_mes","comodines_restantes_mes","task_template_id","notas_md"],
+    "logWidget": ["checkbox_or_number","porcentaje","cumplido"]
+  },
+
+  "delegacion": {
+    "personCard": ["nombre","relacion","email","telefono","activo","skill","will","delegation_level","last_review_at"],
+    "levelGuide": {
+      "1": "Haz exactamente lo que digo",
+      "2": "Haz y actualízame",
+      "3": "Investiga y recomienda",
+      "4": "Decide y reporta",
+      "5": "Autonomía total"
+    },
+    "compute": {
+      "level_recommended": "mapSkillWillToLevel(skill_eff, will_eff)",
+      "skill_eff": "skill_override ?? persona.skill",
+      "will_eff": "will_override ?? persona.will"
+    }
+  },
+
+  "revisionSemanal": {
+    "widgets": [
+      "top5_por_score",
+      "bloqueadas_3d",
+      "sla_7d",
+      "avance_rocks",
+      "interes_reciente"
+    ],
+    "sugerencias": [
+      "proponer_frog_semana",
+      "proponer_3_rock",
+      "drenar_backlog_antiguo",
+      "reestimar_pomos_si_desvio_30"
+    ]
+  }
+}
+
+{
+  "entity": "movimientos",
+  "fields": [
+    {"name":"tipo","component":"ChipGroup","props":{"options":[["ingreso","Ingreso"],["gasto","Gasto"],["transferencia","Transferencia"],["ajuste","Ajuste"]],"required":true}},
+    {"name":"descripcion","component":"Text","props":{"maxLength":200,"required":true}},
+    {"name":"contraparte","component":"Text","props":{"maxLength":160,"autocomplete":"recent"}},
+    {"name":"monto","component":"Currency","props":{"currency":"MXN","min":0.01,"required":true}},
+    {"name":"status","component":"Chips","props":{"options":[["pendiente","Pendiente"],["realizado","Realizado"],["vencido","Vencido"]],"required":true}},
+    {"name":"fecha_objetivo","component":"Date","props":{"visibleIf":{"status":["pendiente","vencido"]}}},
+    {"name":"fecha_real","component":"Date","props":{"visibleIf":{"status":["realizado"]}}},
+
+    {"name":"cuenta_id","component":"Select","props":{"entity":"cuentas","labelKey":"nombre","requiredIf":{"tipo":["ingreso","gasto","ajuste"]}}},
+    {"name":"cuenta_destino_id","component":"Select","props":{"entity":"cuentas","labelKey":"nombre","visibleIf":{"tipo":["transferencia"]},"requiredIf":{"tipo":["transferencia"]}}},
+    {"name":"categoria_id","component":"TreePicker","props":{"entity":"categorias_fin","labelKey":"nombre","requiredIf":{"tipo":["ingreso","gasto"]}}},
+
+    {"name":"archivo_id","component":"File","props":{"accept":["application/pdf","image/*","text/xml"],"max":1}},
+
+    {"name":"tiene_plan_parcial","component":"Toggle","props":{"label":"Plan de pagos (MSI/Hipoteca)","visibleIf":{"tipo":["gasto"]}}},
+    {"name":"msi_meses","component":"Number","props":{"min":2,"max":36,"visibleIf":{"tiene_plan_parcial":[true]}}},
+    {"name":"msi_inicio","component":"Date","props":{"visibleIf":{"tiene_plan_parcial":[true]}}},
+
+    {"name":"notas_md","component":"Markdown","props":{}}
+  ],
+  "validation": [
+    {"rule":"required","fields":["tipo","descripcion","monto"]},
+    {"rule":"requiredIf","field":"fecha_objetivo","when":{"status":["pendiente","vencido"]}},
+    {"rule":"requiredIf","field":"cuenta_id","when":{"tipo":["ingreso","gasto","ajuste"]}},
+    {"rule":"pairRequired","fields":["cuenta_id","cuenta_destino_id"],"when":{"tipo":["transferencia"]}},
+    {"rule":"exclusive","fields":["fecha_real","fecha_objetivo"],"message":"Realizado no debe tener fecha objetivo activa"}
+  ],
+  "ui_tips": [
+    "Transferencia: selecciona origen y destino; el sistema creará el doble apunte vinculado.",
+    "Pendiente con fecha: aparecerá en ‘Hoy’ cuando esté cerca y puede generar tarea ‘Pagar/Cobrar’.",
+    "Sube 1 comprobante por movimiento; usa PDF si lo tienes."
+  ]
+}
+
+{
+  "entity": "cuentas",
+  "fields": [
+    {"name":"nombre","component":"Text","props":{"maxLength":120,"required":true}},
+    {"name":"tipo","component":"ChipGroup","props":{"options":[["billetera","Billetera"],["cuenta","Cuenta"],["tarjeta_credito","Tarjeta"],["prestamo_hipoteca","Hipoteca/Préstamo"]],"required":true}},
+    {"name":"saldo_inicial","component":"Currency","props":{"currency":"MXN","required":true}},
+    {"name":"activa","component":"Toggle","props":{"label":"Activa"}},
+    {"name":"notas","component":"Text","props":{"maxLength":300}}
+  ],
+  "ui_tips":[
+    "El saldo actual se recalcula con los movimientos.",
+    "Puedes ocultar cuentas inactivas en selects y reportes."
+  ]
+}
+
+{
+  "entity": "categorias_fin",
+  "fields": [
+    {"name":"nombre","component":"Text","props":{"maxLength":120,"required":true}},
+    {"name":"parent_id","component":"TreePicker","props":{"entity":"categorias_fin","labelKey":"nombre","allowNull":true}},
+    {"name":"orden","component":"Number","props":{"min":0,"step":1}}
+  ],
+  "ui_tips":[
+    "Mantén profundidad ≤ 3 para reportes claros.",
+    "Drag&drop para ordenar entre hermanos."
+  ]
+}
+
+{
+  "entity": "presupuestos",
+  "fields": [
+    {"name":"categoria_id","component":"TreePicker","props":{"entity":"categorias_fin","required":true}},
+    {"name":"periodo","component":"ChipGroup","props":{"options":[["mensual","Mensual"],["semanal","Semanal"]],"required":true}},
+    {"name":"anio","component":"Number","props":{"min":2020,"max":2100,"required":true}},
+    {"name":"mes","component":"Month","props":{"visibleIf":{"periodo":["mensual"]}}},
+    {"name":"semana_iso","component":"WeekISO","props":{"visibleIf":{"periodo":["semanal"]}}},
+    {"name":"monto_plan","component":"Currency","props":{"currency":"MXN","required":true}}
+  ],
+  "ui_tips":[
+    "Semáforo en listas: Verde <80%, Ámbar 80–100%, Rojo >100%.",
+    "Al capturar un gasto, muestra ‘Te quedan $X este mes en esta categoría’."
+  ]
+}
+
+{
+  "entity": "reglas_clasificacion",
+  "fields": [
+    {"name":"pattern","component":"Text","props":{"placeholder":"Texto a buscar (ej. Spotify)","required":true}},
+    {"name":"categoria_id","component":"TreePicker","props":{"entity":"categorias_fin"}},
+    {"name":"cuenta_id","component":"Select","props":{"entity":"cuentas","allowNull":true}},
+    {"name":"prioridad","component":"Number","props":{"min":1,"max":999,"step":1}},
+    {"name":"activa","component":"Toggle","props":{"label":"Activa"}}
+  ],
+  "ui_tips":[
+    "Se evalúan por prioridad ascendente.",
+    "Aplica sobre descripción y contraparte."
+  ]
+}
+
+{
+  "entity": "movto_recurrentes",
+  "fields": [
+    {"name":"tipo","component":"ChipGroup","props":{"options":[["gasto","Gasto"],["ingreso","Ingreso"]],"required":true}},
+    {"name":"descripcion","component":"Text","props":{"maxLength":200,"required":true}},
+    {"name":"monto","component":"Currency","props":{"currency":"MXN","required":true}},
+    {"name":"cuenta_id","component":"Select","props":{"entity":"cuentas","required":true}},
+    {"name":"categoria_id","component":"TreePicker","props":{"entity":"categorias_fin"}},
+    {"name":"frecuencia","component":"ChipGroup","props":{"options":[["mensual","Mensual"],["semanal","Semanal"],["diaria","Diaria"]],"required":true}},
+    {"name":"dia_mes","component":"Number","props":{"min":1,"max":31,"visibleIf":{"frecuencia":["mensual"]}}},
+    {"name":"dia_semana","component":"Weekday","props":{"visibleIf":{"frecuencia":["semanal"]}}},
+    {"name":"next_run","component":"Date","props":{"required":true}},
+    {"name":"activo","component":"Toggle","props":{"label":"Activo"}}
+  ],
+  "ui_tips":[
+    "Job diario crea el pendiente y avanza la fecha.",
+    "Pendientes aparecen en ‘Hoy’ con aviso suave; puede generar tarea."
+  ]
+}
+
+{
+  "entrada_diario": {
+    "lista": {
+      "groupBy": "fecha",
+      "order": ["fecha DESC", "momento DESC"],
+      "item": [
+        {"field": "mood_principal", "component": "MoodChip", "props": {"map": {"increible": 5, "bien": 4, "meh": 3, "mal": 2, "horrible": 1}}},
+        {"field": "momento", "component": "TimeText", "props": {"format": "HH:mm"}},
+        {"field": "contenido_md", "component": "MarkdownSnippet", "props": {"maxChars": 120}},
+        {"relation": "tags", "component": "TagChips", "props": {"max": 4}},
+        {"relation": "archivos", "component": "AttachmentIcon"}
+      ],
+      "actions": [
+        {"name": "convert_to_task", "label": "Convertir en tarea", "component": "Button", "props": {"variant": "primary"}},
+        {"name": "edit", "label": "Editar", "component": "IconButton", "props": {"icon": "edit"}},
+        {"name": "attach", "label": "Adjuntar foto", "component": "IconButton", "props": {"icon": "paperclip"}}
+      ],
+      "filters": [
+        {"field": "q", "component": "SearchInput", "props": {"placeholder": "Buscar en el diario…", "fulltext": true}},
+        {"field": "fecha_range", "component": "DateRangePicker"},
+        {"field": "mood_principal", "component": "Select", "props": {"options": ["increible","bien","meh","mal","horrible"], "allowNull": true}},
+        {"relation": "tags", "component": "TagMultiSelect", "props": {"scoped": false}}
+      ]
+    },
+    "form": [
+      {"field": "contenido_md", "component": "MarkdownEditor", "props": {"minRows": 6, "autosave": true}, "validation": {"required": true}},
+      {"field": "mood_escala", "component": "MoodPicker5", "props": {"labels": ["Horrible","Mal","Meh","Bien","Increíble"]}},
+      {"field": "mood_principal", "component": "HiddenMirrorOfScale"}, 
+      {"field": "sueno_horas", "component": "Number", "props": {"min": 0, "max": 24, "step": 0.25}},
+      {"field": "plantilla_diaria", "component": "Toggle", "props": {"label": "Usar plantilla de 3 preguntas"}},
+      {"relation": "tags", "component": "TagMultiSelect", "props": {"suggestPrefix": "mood:"}},
+      {"field": "attach_photo", "component": "UploadButton", "props": {"accept": "image/*", "multiple": true}},
+      {"action": "save", "component": "Button", "props": {"label": "Guardar"}}
+    ],
+    "heatmap": {
+      "source": "fecha,mood_escala",
+      "component": "CalendarHeatmap",
+      "props": {"monthView": true, "scale": [1,2,3,4,5]}
+    },
+    "weekly_review": {
+      "widgets": [
+        {"component": "CalendarHeatmap", "props": {"period": "month"}},
+        {"component": "LineChart", "props": {"series": ["mood_escala","sueno_horas"], "yAxis": ["1..5","0..10"]}},
+        {"component": "AutoHighlights", "props": {"top": 3, "bottom": 3}}
+      ]
+    },
+    "convert_to_task": {
+      "defaults": {
+        "area_id": "personal",
+        "tituloFrom": {"source": "contenido_md", "maxChars": 60},
+        "detalle_md": {"prepend": "Origen: entrada del {{fecha}}\\n\\n"}
+      }
+    }
+  }
+}

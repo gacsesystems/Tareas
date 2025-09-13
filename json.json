@@ -1,0 +1,1058 @@
+{
+    "version": "1.0",
+    "entity": "tareas",
+    "ui_contract": {
+        "components": {
+            "Text": "input text single line",
+            "TextArea": "multiline text",
+            "Markdown": "markdown editor with preview",
+            "Select": "single select dropdown",
+            "MultiSelect": "multi select dropdown",
+            "Autocomplete": "searchable select",
+            "Toggle": "boolean switch",
+            "ChipGroup": "compact option chips",
+            "Slider": "0-10 slider",
+            "Number": "numeric input",
+            "Date": "date picker",
+            "DateTime": "date-time picker",
+            "AvatarPicker": "user selector with avatar",
+            "Badge": "readonly label chip",
+            "PomodoroDots": "readonly visual of pomodoros",
+            "ProgressBar": "readonly progress",
+            "IconButton": "icon-only action button"
+        }
+    },
+    "fields": {
+        "id": {
+            "component": "Badge",
+            "readonly": true,
+            "help": "Identificador único"
+        },
+        "proyecto_id": {
+            "component": "Autocomplete",
+            "label": "Proyecto",
+            "datasource": "proyectos",
+            "allowCreate": true,
+            "required": false,
+            "help": "Asigna la tarea a un proyecto/épica"
+        },
+        "proyecto_etapa_id": {
+            "component": "Select",
+            "label": "Etapa",
+            "datasource": "proyecto_etapas",
+            "required": false,
+            "help": "Fase dentro del proyecto"
+        },
+        "titulo": {
+            "component": "Text",
+            "label": "Título",
+            "required": true,
+            "maxLength": 300,
+            "placeholder": "Escribe un resultado concreto",
+            "help": "Nombre claro y accionable"
+        },
+        "detalle_md": {
+            "component": "Markdown",
+            "label": "Detalle",
+            "placeholder": "Contexto, criterio de listo, enlaces…",
+            "help": "Soporta Markdown y archivos adjuntos"
+        },
+        "estado": {
+            "component": "ChipGroup",
+            "label": "Estado",
+            "options": [
+                "backlog",
+                "siguiente",
+                "hoy",
+                "en_curso",
+                "en_revision",
+                "hecha",
+                "bloqueada"
+            ],
+            "default": "backlog",
+            "help": "Pipeline de ejecución; arrastrable en tablero"
+        },
+        "fecha_limite": {
+            "component": "DateTime",
+            "label": "Fecha límite",
+            "required": false,
+            "help": "Usada para urgencia y semáforo"
+        },
+        "seguimiento_proximo": {
+            "component": "Date",
+            "label": "Próximo seguimiento",
+            "help": "Para tareas delegadas/‘waiting for’"
+        },
+        "created_by": {
+            "component": "AvatarPicker",
+            "label": "Creada por",
+            "datasource": "personas",
+            "readonly": true
+        },
+        "responsable_id": {
+            "component": "AvatarPicker",
+            "label": "Responsable",
+            "datasource": "personas",
+            "help": "Asignado actual"
+        },
+        "tipo": {
+            "component": "Select",
+            "label": "Tipo",
+            "options": ["tarea", "bug", "mejora", "investigacion", "consumo"],
+            "default": "tarea"
+        },
+        "area_id": {
+            "component": "Select",
+            "label": "Área",
+            "datasource": "areas",
+            "default": 1
+        },
+        "contexto_id": {
+            "component": "Select",
+            "label": "Contexto",
+            "datasource": "contextos",
+            "default": 1,
+            "help": "PC, Teléfono, Casa, Oficina…"
+        },
+        "moscow": {
+            "component": "ChipGroup",
+            "label": "MoSCoW",
+            "options": ["M", "S", "C", "W"],
+            "help": "Prioridad de ciclo"
+        },
+        "horizon": {
+            "component": "ChipGroup",
+            "label": "Horizon",
+            "options": ["H1", "H2", "H3"],
+            "help": "Corto / medio / largo plazo"
+        },
+        "eisen_importante": {
+            "component": "Toggle",
+            "label": "Importante",
+            "default": false
+        },
+        "eisen_urgente": {
+            "component": "Toggle",
+            "label": "Urgente",
+            "default": false
+        },
+        "impacto": {
+            "component": "Slider",
+            "label": "Impacto",
+            "min": 0,
+            "max": 10,
+            "step": 1
+        },
+        "valor": {
+            "component": "Slider",
+            "label": "Valor (ROI)",
+            "min": 0,
+            "max": 10,
+            "step": 1
+        },
+        "eficiencia": {
+            "component": "Slider",
+            "label": "Eficiencia (menos esfuerzo = más)",
+            "min": 0,
+            "max": 10,
+            "step": 1
+        },
+        "stakeholders": {
+            "component": "Slider",
+            "label": "Stakeholders",
+            "min": 0,
+            "max": 10,
+            "step": 1,
+            "help": "Peso para cliente/equipo/board"
+        },
+        "urgencia_manual": {
+            "component": "Slider",
+            "label": "Urgencia manual (override)",
+            "min": 0,
+            "max": 10,
+            "step": 1,
+            "help": "Solo si quieres sobreescribir la calculada por fecha"
+        },
+        "kash": {
+            "component": "ChipGroup",
+            "label": "KASH",
+            "options": ["K", "A", "S", "H"],
+            "help": "Conocimiento, Actitud, Skill, Hábito"
+        },
+        "family_friendly": {
+            "component": "Toggle",
+            "label": "Apta con familia",
+            "default": false
+        },
+        "is_rock": {
+            "component": "Toggle",
+            "label": "Roca semanal",
+            "default": false
+        },
+        "frog": {
+            "component": "Toggle",
+            "label": "Frog del día",
+            "default": false
+        },
+        "frog_date": {
+            "component": "Date",
+            "label": "Fecha Frog"
+        },
+        "pomos_estimados": {
+            "component": "Number",
+            "label": "Pomodoros estimados",
+            "min": 0,
+            "max": 200
+        },
+        "pomos_realizados": {
+            "component": "Number",
+            "label": "Pomodoros realizados",
+            "min": 0,
+            "readonly": true
+        },
+        "tiempo_total_min": {
+            "component": "Number",
+            "label": "Minutos acumulados",
+            "readonly": true
+        },
+        "score": {
+            "component": "Badge",
+            "label": "Score",
+            "readonly": true,
+            "format": "0.00"
+        },
+        "ranking": {
+            "component": "Number",
+            "label": "Rank (orden manual)",
+            "help": "Espaciado (1000, 2000…). Drag & drop lo ajusta"
+        },
+        "pareto": {
+            "component": "Toggle",
+            "label": "Top 20% (Pareto)",
+            "default": false
+        },
+        "bloqueada": {
+            "component": "Toggle",
+            "label": "Bloqueada",
+            "default": false
+        },
+        "bloqueo_motivo": {
+            "component": "Text",
+            "label": "Motivo de bloqueo",
+            "placeholder": "Falta insumo de X / espera aprobación"
+        },
+        "score_boost_until": {
+            "component": "DateTime",
+            "label": "Boost hasta",
+            "readonly": true
+        },
+        "score_boost_factor": {
+            "component": "Number",
+            "label": "Factor boost",
+            "readonly": true,
+            "default": 1.15
+        },
+        "riesgo_oportunidad": {
+            "component": "Number",
+            "label": "Riesgo/Oportunidad (-0.20..+0.20)",
+            "step": 0.05,
+            "min": -0.2,
+            "max": 0.2
+        },
+        "habito_id": {
+            "component": "Autocomplete",
+            "label": "Hábito relacionado",
+            "datasource": "habitos",
+            "allowCreate": true
+        },
+        "created_at": {
+            "component": "Badge",
+            "label": "Creada",
+            "readonly": true
+        },
+        "updated_at": {
+            "component": "Badge",
+            "label": "Actualizada",
+            "readonly": true
+        },
+        "deleted_at": {
+            "component": "Badge",
+            "label": "Archivada",
+            "readonly": true
+        }
+    },
+    "computed": {
+        "urgencia_calc": "if(fecha_limite) map(días_restantes -> 0..10) else urgencia_manual || 0",
+        "eisenhower_score": "0.6*impacto + 0.4*urgencia_calc",
+        "quadrant": "Q1/Q2/Q3/Q4 via eisen_importante/eisen_urgente or eisenhower_score thresholds",
+        "mcda": "0.30*impacto + 0.25*valor + 0.20*urgencia_calc + 0.15*eficiencia + 0.10*stakeholders",
+        "mult_eisen": "Q1=1.0, Q2=0.8, Q3=0.5, Q4=0.2",
+        "mult_moscow": "M=1.2, S=1.1, C=1.0, W=0.5",
+        "mult_kash": "S/H=1.1 else 1.0",
+        "mult_frog": "frog ? 1.3 : 1.0",
+        "mult_horizon": "H1=1.0, H2=1.15, H3=1.30",
+        "bonus_antiguedad": "min(0.05 * semanas_desde_created_at, 0.30)",
+        "penal_bloqueo": "bloqueada ? 0.8 : 1.0",
+        "bonus_pareto": "pareto || is_rock ? 1.10 : 1.0",
+        "mult_riesgo": "1 + clamp(riesgo_oportunidad, -0.2, 0.2)",
+        "progress": "pomos_estimados>0 ? min(pomos_realizados/pomos_estimados,1) : 0",
+        "mult_progress": "1 + 0.15*progress",
+        "overrun": "max(0, pomos_realizados - pomos_estimados)",
+        "mult_overrun": "max(0.7, 1/(1 + 0.1*overrun))",
+        "mult_boost": "(now < score_boost_until && !bloqueada) ? min(score_boost_factor||1.15,1.20) : 1.0",
+        "score_final": "(mcda * mult_eisen) * mult_moscow * mult_kash * mult_frog * mult_horizon * (1+bonus_antiguedad) * penal_bloqueo * bonus_pareto * mult_riesgo * mult_progress * mult_overrun * mult_boost"
+    },
+    "actions": {
+        "markFrog": {
+            "label": "Marcar Frog",
+            "effects": ["set frog=true", "set frog_date=today"]
+        },
+        "toggleRock": {
+            "label": "Marcar/Desmarcar Roca",
+            "effects": ["toggle is_rock=true/false"]
+        },
+        "moreUrgent24h": {
+            "label": "Más urgente (24h)",
+            "effects": [
+                "set score_boost_factor=1.15 if null",
+                "set score_boost_until=now+24h"
+            ],
+            "guards": [
+                "status!=bloqueada",
+                "máximo 3 boosts activos por usuario"
+            ]
+        },
+        "pushTop": {
+            "label": "Empujar al tope",
+            "effects": ["ranking = minRankingActual - 100"]
+        }
+    },
+    "list_views": {
+        "Hoy": {
+            "columns": [
+                "frog",
+                "is_rock",
+                "titulo",
+                "moscow",
+                "quadrant",
+                "horizon",
+                "pomos_estimados",
+                "pomos_realizados",
+                "fecha_limite",
+                "responsable_id",
+                "score"
+            ],
+            "order": ["frog DESC", "is_rock DESC", "ranking ASC", "score DESC"],
+            "capacity_banner": {
+                "show": true,
+                "bindings": {
+                    "capacidad_min_dia": "sum(timeblocks.disponibles.hoy.capacidad_min)",
+                    "costo_seleccion": "sum(tareas_hoy.pomos_estimados * 25)"
+                },
+                "semáforo": "verde/amarillo/rojo según gap"
+            }
+        },
+        "Backlog": {
+            "columns": [
+                "titulo",
+                "proyecto_id",
+                "moscow",
+                "horizon",
+                "quadrant",
+                "impacto",
+                "valor",
+                "eficiencia",
+                "stakeholders",
+                "score"
+            ],
+            "order": ["score DESC"]
+        },
+        "WaitingFor": {
+            "filter": [
+                "estado IN (bloqueada, en_revision)",
+                "responsable_id != currentUserId"
+            ],
+            "columns": [
+                "titulo",
+                "responsable_id",
+                "bloqueo_motivo",
+                "seguimiento_proximo",
+                "score"
+            ],
+            "order": ["seguimiento_proximo ASC", "score DESC"]
+        }
+    },
+    "validations": {
+        "titulo": ["required", "max:300"],
+        "impacto": ["integer", "min:0", "max:10"],
+        "valor": ["integer", "min:0", "max:10"],
+        "eficiencia": ["integer", "min:0", "max:10"],
+        "stakeholders": ["integer", "min:0", "max:10"],
+        "urgencia_manual": ["integer", "min:0", "max:10"],
+        "pomos_estimados": ["integer", "min:0", "max:200"],
+        "pomos_realizados": ["integer", "min:0"],
+        "riesgo_oportunidad": ["numeric", "min:-0.2", "max:0.2"]
+    },
+    "defaults": {
+        "estado": "backlog",
+        "tipo": "tarea",
+        "ranking": 1000,
+        "score_boost_factor": 1.15
+    },
+    "tooltips": {
+        "score": "Prioridad combinada (MCDA, Eisenhower, MoSCoW, KASH, Frog, Horizon, progreso, etc.)",
+        "ranking": "Orden manual. Úsalo para empujar sin cambiar la prioridad calculada",
+        "pareto": "Marca si es del top 20% del proyecto (alto impacto)",
+        "frog": "Tu primera tarea del día",
+        "is_rock": "Objetivo clave de la semana",
+        "family_friendly": "Apta para horarios flexibles o con familia"
+    }
+}
+
+{
+  "version": "1.0",
+  "entities": {
+    "proyectos": {
+      "list_defaults": {
+        "order": ["estrategico DESC", "prioridad DESC", "status ASC", "nombre ASC"],
+        "columns": ["estrategico", "nombre", "prioridad", "status", "fec_inicio_plan", "fec_fin_plan", "progreso_pct", "proxima_accion_tarea_id"]
+      },
+      "card_view": {
+        "header": ["estrategico", "nombre", "prioridad"],
+        "subheader": ["descripcion"],
+        "meta": ["status", "fec_inicio_plan", "fec_fin_plan", "progreso_pct"],
+        "cta": ["ver_detalle", "ir_gantt", "ir_proxima_accion"]
+      },
+      "fields": {
+        "id": { "component": "Badge", "readonly": true, "label": "ID" },
+        "nombre": {
+          "component": "Text",
+          "label": "Nombre del proyecto",
+          "props": { "maxLength": 200, "autoFocus": true },
+          "validations": ["required", "max:200"]
+        },
+        "descripcion": {
+          "component": "TextArea",
+          "label": "Descripción",
+          "props": { "maxLength": 400, "rows": 3 },
+          "validations": ["max:400"]
+        },
+        "area_id": {
+          "component": "Autocomplete",
+          "label": "Área",
+          "datasource": "areas",
+          "props": { "allowCreate": true, "clearable": true }
+        },
+        "status": {
+          "component": "ChipGroup",
+          "label": "Estado",
+          "options": ["abierto", "cerrado"],
+          "default": "abierto"
+        },
+        "prioridad": {
+          "component": "ChipGroup",
+          "label": "Prioridad",
+          "options": [
+            { "value": "baja", "color": "green" },
+            { "value": "media", "color": "amber" },
+            { "value": "alta", "color": "red" }
+          ],
+          "default": "media"
+        },
+        "estrategico": {
+          "component": "Toggle",
+          "label": "Estratégico",
+          "default": false,
+          "help": "Destaca este proyecto en listas y dashboard"
+        },
+        "fec_inicio_plan": {
+          "component": "Date",
+          "label": "Inicio plan",
+          "validations": []
+        },
+        "fec_fin_plan": {
+          "component": "Date",
+          "label": "Fin plan",
+          "validations": ["after_or_equal:fec_inicio_plan"]
+        },
+        "fec_inicio_real": {
+          "component": "Date",
+          "label": "Inicio real",
+          "validations": []
+        },
+        "fec_fin_real": {
+          "component": "Date",
+          "label": "Fin real",
+          "validations": ["after_or_equal:fec_inicio_real"]
+        },
+        "criterio_cierre": {
+          "component": "RadioGroup",
+          "label": "Criterio de cierre",
+          "options": [
+            { "value": "tareas", "label": "Todas las tareas completadas" },
+            { "value": "objetivos", "label": "Objetivos cumplidos" }
+          ],
+          "default": "tareas"
+        },
+        "objetivo_principal": {
+          "component": "Text",
+          "label": "Objetivo principal (opcional)",
+          "props": { "maxLength": 300 }
+        },
+        "proxima_accion_modo": {
+          "component": "ChipGroup",
+          "label": "Próxima acción",
+          "options": ["auto", "manual"],
+          "default": "auto"
+        },
+        "proxima_accion_tarea_id": {
+          "component": "Autocomplete",
+          "label": "Seleccionar próxima acción",
+          "datasource": "tareas_por_proyecto",
+          "props": { "disabledWhen": { "field": "proxima_accion_modo", "neq": "manual" } }
+        },
+        "proxima_accion_updated_at": {
+          "component": "Badge",
+          "label": "Actualizado",
+          "readonly": true,
+          "format": "relativeTime"
+        },
+        "progreso_pct": {
+          "component": "ProgressBar",
+          "label": "Progreso",
+          "readonly": true,
+          "props": { "min": 0, "max": 100, "precision": 2 }
+        },
+        "notas_md": {
+          "component": "Markdown",
+          "label": "Notas",
+          "props": { "placeholder": "Acuerdos, decisiones, links…" }
+        },
+        "created_at": { "component": "Badge", "label": "Creado", "readonly": true, "format": "datetime" },
+        "updated_at": { "component": "Badge", "label": "Actualizado", "readonly": true, "format": "relativeTime" }
+      },
+      "computed": {
+        "gantt_enabled": "fec_inicio_plan && fec_fin_plan",
+        "health": "computeHealth(fec_inicio_plan,fec_fin_plan,progreso_pct,status)", 
+        "days_left": "diffInDays(today,fec_fin_plan)"
+      },
+      "actions": {
+        "ver_detalle": { "label": "Abrir", "icon": "ExternalLink" },
+        "ir_gantt": { "label": "Gantt", "icon": "Timeline", "visibleWhen": "gantt_enabled" },
+        "ir_proxima_accion": { "label": "Ir a próxima acción", "icon": "ArrowRightFromCircle", "enabledWhen": "proxima_accion_tarea_id!=null" },
+        "cerrar_proyecto": { "label": "Cerrar", "icon": "CheckCircle2", "confirm": true }
+      },
+      "validations": {
+        "nombre": ["required", "max:200"],
+        "descripcion": ["max:400"],
+        "fec_fin_plan": ["after_or_equal:fec_inicio_plan"],
+        "fec_fin_real": ["after_or_equal:fec_inicio_real"]
+      }
+    },
+
+    "proyecto_etapas": {
+      "list_defaults": {
+        "order": ["orden ASC"],
+        "columns": ["orden", "nombre", "fecha_inicio_plan", "fecha_fin_plan", "progreso_pct", "done"]
+      },
+      "fields": {
+        "id": { "component": "Badge", "readonly": true, "label": "ID" },
+        "proyecto_id": { "component": "Badge", "readonly": true, "label": "Proyecto" },
+        "nombre": {
+          "component": "Text",
+          "label": "Nombre de etapa",
+          "props": { "maxLength": 120 },
+          "validations": ["required", "max:120"]
+        },
+        "orden": {
+          "component": "Number",
+          "label": "Orden",
+          "props": { "min": 0, "step": 1 },
+          "validations": ["required", "integer", "min:0"]
+        },
+        "fecha_inicio_plan": { "component": "Date", "label": "Inicio plan" },
+        "fecha_fin_plan": { "component": "Date", "label": "Fin plan", "validations": ["after_or_equal:fecha_inicio_plan"] },
+        "fecha_inicio_real": { "component": "Date", "label": "Inicio real" },
+        "fecha_fin_real": { "component": "Date", "label": "Fin real", "validations": ["after_or_equal:fecha_inicio_real"] },
+        "progreso_pct": {
+          "component": "ProgressBar",
+          "label": "Progreso",
+          "readonly": true,
+          "props": { "min": 0, "max": 100, "precision": 1 }
+        },
+        "done": { "component": "Toggle", "label": "Finalizada", "default": false }
+      },
+      "computed": {
+        "gantt_bar_plan": "range(fecha_inicio_plan, fecha_fin_plan)",
+        "gantt_bar_real": "range(fecha_inicio_real, fecha_fin_real)"
+      },
+      "actions": {
+        "move_up": { "label": "Subir", "icon": "ChevronUp" },
+        "move_down": { "label": "Bajar", "icon": "ChevronDown" },
+        "mark_done": { "label": "Marcar como hecha", "icon": "Check" }
+      }
+    },
+
+    "proyecto_objetivos": {
+      "list_defaults": {
+        "order": ["orden ASC"],
+        "columns": ["cumplido", "descripcion", "fecha_objetivo"]
+      },
+      "fields": {
+        "id": { "component": "Badge", "readonly": true, "label": "ID" },
+        "proyecto_id": { "component": "Badge", "readonly": true, "label": "Proyecto" },
+        "descripcion": {
+          "component": "Text",
+          "label": "Descripción del objetivo",
+          "props": { "maxLength": 300, "placeholder": "Ej. Lanzar portal de citas antes de junio" },
+          "validations": ["required", "max:300"]
+        },
+        "fecha_objetivo": { "component": "Date", "label": "Fecha objetivo" },
+        "cumplido": { "component": "Toggle", "label": "Cumplido", "default": false },
+        "orden": {
+          "component": "Number",
+          "label": "Orden",
+          "props": { "min": 0, "step": 1 },
+          "validations": ["required", "integer", "min:0"]
+        }
+      },
+      "actions": {
+        "mark_done": { "label": "Marcar cumplido", "icon": "CheckCircle" }
+      }
+    }
+  },
+
+  "views": {
+    "DashboardProyectos": {
+      "filters": ["area_id", "status", "prioridad", "estrategico"],
+      "cards": "proyectos.card_view",
+      "row_actions": ["ir_gantt", "ir_proxima_accion", "cerrar_proyecto"],
+      "computed_badges": [
+        { "name": "Health", "value": "health", "colors": { "verde": "green", "amarillo": "amber", "rojo": "red" } },
+        { "name": "D-Left", "value": "days_left", "when": "fec_fin_plan!=null" }
+      ]
+    },
+    "Gantt": {
+      "source": "proyecto_etapas",
+      "bars": [
+        { "type": "plan", "range": "gantt_bar_plan", "color": "slate" },
+        { "type": "real", "range": "gantt_bar_real", "color": "blue" }
+      ],
+      "row_label": "nombre",
+      "row_group": "proyecto_id"
+    }
+  }
+}
+
+{
+  "version": "1.0",
+  "entities": {
+    "etiquetas": {
+      "fields": {
+        "id": { "component": "Badge", "label": "ID", "readonly": true },
+        "nombre": {
+          "component": "Text",
+          "label": "Nombre",
+          "props": { "maxLength": 50, "autocomplete": "frecuencia+texto" },
+          "validations": ["required", "max:50"]
+        },
+        "slug": { "component": "Badge", "label": "Slug", "readonly": true },
+        "categoria": {
+          "component": "ChipGroup",
+          "label": "Categoría",
+          "options": ["motivacion", "contexto", "resultado", "otro"],
+          "default": "otro"
+        },
+        "color": {
+          "component": "ColorPicker",
+          "label": "Color",
+          "props": { "allowNone": true, "enforceContrast": true }
+        },
+        "color_es_manual": {
+          "component": "Toggle",
+          "label": "Color manual",
+          "default": false,
+          "help": "Si está activo, no se aplica autocolor"
+        },
+        "es_sistema": {
+          "component": "Toggle",
+          "label": "Etiqueta del sistema",
+          "default": false,
+          "readonly": true
+        },
+        "created_at": { "component": "Badge", "label": "Creado", "readonly": true, "format": "datetime" }
+      },
+      "validations": {
+        "nombre": ["required", "max:50"],
+        "slug": ["unique:etiquetas,slug"],
+        "categoria": ["required"]
+      },
+      "actions": {
+        "merge": { "label": "Fusionar", "icon": "Merge", "confirm": true }
+      }
+    },
+
+    "etiquetables": {
+      "fields": {
+        "etiqueta_id": {
+          "component": "Autocomplete",
+          "label": "Etiqueta",
+          "datasource": "etiquetas",
+          "props": { "allowCreate": true }
+        },
+        "taggable_type": {
+          "component": "Select",
+          "label": "Tipo",
+          "options": ["App\\Models\\Tarea", "App\\Models\\Proyecto", "App\\Models\\Habito", "App\\Models\\Nota", "App\\Models\\Movimiento", "App\\Models\\Journal"],
+          "help": "Entidad a etiquetar"
+        },
+        "taggable_id": {
+          "component": "Number",
+          "label": "ID del elemento",
+          "props": { "min": 1 }
+        }
+      },
+      "constraints": {
+        "max_tags_per_item": 5
+      }
+    },
+
+    "sesiones_trabajo": {
+      "fields": {
+        "id": { "component": "Badge", "label": "ID", "readonly": true },
+        "tarea_id": {
+          "component": "Autocomplete",
+          "label": "Tarea",
+          "datasource": "tareas",
+          "props": { "clearable": true, "disabledWhenStartedFromTask": true }
+        },
+        "categoria": {
+          "component": "ChipGroup",
+          "label": "Categoría",
+          "options": ["deep_work", "soporte", "administrativo", "ventas", "estudio", "personal"],
+          "help": "Usado para reportes y sugerencias"
+        },
+        "tipo": {
+          "component": "ChipGroup",
+          "label": "Tipo",
+          "options": ["trabajo", "descanso"],
+          "default": "trabajo",
+          "readonly": true
+        },
+        "inicio": {
+          "component": "DateTime",
+          "label": "Inicio",
+          "readonly": true,
+          "format": "datetime"
+        },
+        "fin": {
+          "component": "DateTime",
+          "label": "Fin",
+          "readonly": true,
+          "format": "datetime"
+        },
+        "foco_min": {
+          "component": "Number",
+          "label": "Foco (min)",
+          "readonly": true
+        },
+        "descanso_min": {
+          "component": "Number",
+          "label": "Descanso (min)",
+          "readonly": true
+        },
+        "modo_rollover": {
+          "component": "ChipGroup",
+          "label": "Modo",
+          "options": ["acumulativo", "balanceado", "estricto"],
+          "default": "acumulativo",
+          "help": "Se hereda del modo del día; puedes cambiarlo antes de iniciar"
+        },
+        "next_focus_suggestion": {
+          "component": "JsonPreview",
+          "label": "Sugerencia siguiente foco",
+          "readonly": true,
+          "schemaHint": {
+            "tarea_id": "number|null",
+            "razon": "frog|score|continuidad|contexto",
+            "titulo": "string",
+            "score": "number"
+          }
+        },
+        "notas": {
+          "component": "Text",
+          "label": "Notas",
+          "props": { "maxLength": 400 }
+        },
+        "created_at": { "component": "Badge", "label": "Creada", "readonly": true, "format": "datetime" }
+      },
+      "validations": {
+        "tipo": ["required", "in:trabajo,descanso"],
+        "modo_rollover": ["required", "in:acumulativo,balanceado,estricto"]
+      },
+      "actions": {
+        "start": { "label": "Iniciar", "icon": "Play" },
+        "stop": { "label": "Detener", "icon": "Square" },
+        "go_to_task": { "label": "Ir a tarea", "icon": "ArrowRight", "enabledWhen": "tarea_id!=null" }
+      },
+      "computed": {
+        "duracion_min": "differenceInMinutes(fin, inicio)",
+        "display_title": "tipo==='trabajo' ? 'Pomodoro' : 'Descanso'"
+      }
+    }
+  }
+}
+
+{
+  "version": "1.0",
+  "entities": {
+    "habito": {
+      "list_defaults": {
+        "order": ["activo DESC", "peso DESC", "nombre ASC"],
+        "columns": ["nombre", "tipo", "periodicidad", "peso", "streak", "mejor_streak", "activo"]
+      },
+      "fields": {
+        "id": { "component": "Badge", "label": "ID", "readonly": true },
+        "nombre": {
+          "component": "Text",
+          "label": "Nombre del hábito",
+          "props": { "maxLength": 120, "placeholder": "Ej. Leer 20 min / No más de 30 min redes" },
+          "validations": ["required", "max:120"]
+        },
+        "tipo": {
+          "component": "ChipGroup",
+          "label": "Tipo",
+          "options": ["positivo", "negativo"],
+          "default": "positivo",
+          "help": "Positivo: hacer X. Negativo: no exceder X."
+        },
+        "unidad": {
+          "component": "Select",
+          "label": "Unidad",
+          "options": ["min", "reps", "vasos", "paginas", "km", "%", "otro"],
+          "nullable": true,
+          "help": "Si está vacío, el hábito es binario (hecho/no hecho)."
+        },
+        "meta": {
+          "component": "Number",
+          "label": "Meta (cuantitativo)",
+          "props": { "min": 0, "step": 0.5 },
+          "visibleWhen": "unidad!=null"
+        },
+        "umbral_cumplimiento": {
+          "component": "Number",
+          "label": "Umbral de cumplimiento",
+          "props": { "min": 0, "step": 0.5 },
+          "help": "Mínimo para marcar 'cumplido'. En negativos se evalúa como '≤'.",
+          "visibleWhen": "unidad!=null"
+        },
+        "periodicidad": {
+          "component": "ChipGroup",
+          "label": "Periodicidad",
+          "options": ["diario", "semanal", "quincenal", "mensual", "anual"],
+          "default": "diario"
+        },
+        "times_per_week": {
+          "component": "Number",
+          "label": "Veces/semana (x/7)",
+          "props": { "min": 1, "max": 7 },
+          "visibleWhen": "periodicidad==='semanal'"
+        },
+        "dias_semana_bitmap": {
+          "component": "WeekdayPicker",
+          "label": "Días objetivo",
+          "help": "Selecciona LU..DO",
+          "visibleWhen": "periodicidad!=='mensual' && periodicidad!=='anual'"
+        },
+        "min_dias_mes": {
+          "component": "Number",
+          "label": "Al menos N días al mes",
+          "props": { "min": 1, "max": 31 },
+          "visibleWhen": "periodicidad==='mensual'"
+        },
+        "fecha_inicio": {
+          "component": "Date",
+          "label": "Empieza"
+        },
+        "activo": {
+          "component": "Toggle",
+          "label": "Activo",
+          "default": true
+        },
+        "peso": {
+          "component": "Rating5",
+          "label": "Importancia",
+          "default": 3,
+          "help": "1-5. Afecta sugerencias y orden."
+        },
+        "streak": { "component": "Badge", "label": "Racha", "readonly": true },
+        "mejor_streak": { "component": "Badge", "label": "Mejor racha", "readonly": true },
+        "freezes_restantes_mes": {
+          "component": "Number",
+          "label": "Freezes restantes (mes)",
+          "props": { "min": 0, "max": 10 }
+        },
+        "comodines_restantes_mes": {
+          "component": "Number",
+          "label": "Comodines restantes (mes)",
+          "props": { "min": 0, "max": 10 }
+        },
+        "task_template_id": {
+          "component": "Autocomplete",
+          "label": "Plantilla de tarea (opcional)",
+          "datasource": "tareas_plantillas",
+          "help": "Al completar la tarea del día se marca el hábito."
+        },
+        "categoria": {
+          "component": "Select",
+          "label": "Categoría",
+          "options": ["salud", "estudio", "familia", "productividad", "finanzas", "personal", "otro"],
+          "nullable": true
+        },
+        "notas_md": {
+          "component": "Markdown",
+          "label": "Notas",
+          "props": { "rows": 6 }
+        },
+        "created_at": { "component": "Badge", "label": "Creado", "readonly": true, "format": "datetime" },
+        "updated_at": { "component": "Badge", "label": "Actualizado", "readonly": true, "format": "relativeTime" }
+      },
+      "validations": {
+        "nombre": ["required", "max:120"],
+        "tipo": ["required", "in:positivo,negativo"]
+      },
+      "computed": {
+        "es_binario": "unidad==null"
+      },
+      "actions": {
+        "usar_freeze": { "label": "Usar freeze", "icon": "Snowflake", "enabledWhen": "freezes_restantes_mes>0" },
+        "usar_comodin": { "label": "Usar comodín", "icon": "Sparkles", "enabledWhen": "comodines_restantes_mes>0" }
+      }
+    },
+
+    "habito_log": {
+      "list_defaults": {
+        "order": ["fecha DESC"],
+        "columns": ["fecha", "cumplido", "valor", "porcentaje", "tarea_id"]
+      },
+      "fields": {
+        "id": { "component": "Badge", "label": "ID", "readonly": true },
+        "habito_id": { "component": "Badge", "label": "Hábito", "readonly": true },
+        "fecha": { "component": "Date", "label": "Fecha", "readonly": true },
+        "valor": {
+          "component": "Number",
+          "label": "Valor",
+          "props": { "min": 0, "step": 0.5 },
+          "visibleWhen": "habito.unidad!=null"
+        },
+        "cumplido": { "component": "Toggle", "label": "Cumplido", "readonly": true },
+        "porcentaje": { "component": "ProgressCircle", "label": "%", "readonly": true },
+        "tarea_id": { "component": "Link", "label": "Tarea origen", "readonly": true }
+      }
+    },
+
+    "rutinas": {
+      "list_defaults": {
+        "order": ["activo DESC", "nombre ASC"],
+        "columns": ["nombre", "periodicidad", "horario_sugerido", "activo"]
+      },
+      "fields": {
+        "id": { "component": "Badge", "label": "ID", "readonly": true },
+        "nombre": {
+          "component": "Text",
+          "label": "Nombre",
+          "props": { "maxLength": 120, "placeholder": "Mañana / Noche / Pre-work" },
+          "validations": ["required", "max:120"]
+        },
+        "descripcion": {
+          "component": "Text",
+          "label": "Descripción",
+          "props": { "maxLength": 300 }
+        },
+        "periodicidad": {
+          "component": "ChipGroup",
+          "label": "Periodicidad",
+          "options": ["diario", "semanal", "quincenal", "mensual", "bimestral", "anual"],
+          "default": "diario"
+        },
+        "dias_semana_bitmap": {
+          "component": "WeekdayPicker",
+          "label": "Días objetivo",
+          "visibleWhen": "periodicidad!=='mensual' && periodicidad!=='bimestral' && periodicidad!=='anual'"
+        },
+        "horario_sugerido": { "component": "Time", "label": "Horario sugerido" },
+        "activo": { "component": "Toggle", "label": "Activa", "default": true },
+        "notas_md": { "component": "Markdown", "label": "Notas", "props": { "rows": 6 } },
+        "created_at": { "component": "Badge", "label": "Creada", "readonly": true, "format": "datetime" }
+      },
+      "actions": {
+        "iniciar": { "label": "Iniciar rutina", "icon": "PlayCircle" }
+      }
+    },
+
+    "rutina_items": {
+      "list_defaults": {
+        "order": ["orden ASC"],
+        "columns": ["orden", "tipo", "habito_id", "task_template_id", "duracion_est_min", "obligatorio"]
+      },
+      "fields": {
+        "id": { "component": "Badge", "label": "ID", "readonly": true },
+        "rutina_id": { "component": "Badge", "label": "Rutina", "readonly": true },
+        "tipo": {
+          "component": "ChipGroup",
+          "label": "Tipo",
+          "options": ["habito", "tarea_micro", "pausa", "nota"],
+          "default": "habito",
+          "help": "Cambia el control a renderizar durante la ejecución."
+        },
+        "habito_id": {
+          "component": "Autocomplete",
+          "label": "Hábito",
+          "datasource": "habitos",
+          "visibleWhen": "tipo==='habito'"
+        },
+        "task_template_id": {
+          "component": "Autocomplete",
+          "label": "Plantilla de tarea",
+          "datasource": "tareas_plantillas",
+          "visibleWhen": "tipo==='tarea_micro'"
+        },
+        "descripcion": {
+          "component": "Text",
+          "label": "Descripción",
+          "props": { "maxLength": 200, "placeholder": "Texto guía o micro-acción" },
+          "visibleWhen": "tipo==='nota' || (tipo==='tarea_micro' && task_template_id==null)"
+        },
+        "duracion_est_min": {
+          "component": "Number",
+          "label": "Duración estimada (min)",
+          "props": { "min": 1, "max": 240 }
+        },
+        "obligatorio": {
+          "component": "Toggle",
+          "label": "Obligatorio",
+          "default": true
+        },
+        "orden": {
+          "component": "Number",
+          "label": "Orden",
+          "props": { "min": 0, "step": 1 }
+        },
+        "created_at": { "component": "Badge", "label": "Creado", "readonly": true, "format": "datetime" }
+      },
+      "actions": {
+        "move_up": { "label": "Subir", "icon": "ChevronUp" },
+        "move_down": { "label": "Bajar", "icon": "ChevronDown" }
+      },
+      "computed": {
+        "muestra_en_hoy": "rutinas.activo && (rutinas.periodicidad==='diario' || (rutinas.dias_semana_bitmap && hoy_en_bitmap))"
+      }
+    }
+  },
+  "ui_rules": {
+    "habit_success_logic": "tipo==='positivo' ? valor>=umbral_o_meta : valor<=umbral_o_meta",
+    "porcentaje_calc": "unidad ? clamp((valor/meta)*100,0,100) : (cumplido?100:0)",
+    "streak_freeze": "si freeze usado hoy => no rompe racha",
+    "streak_comodin": "si comodin usado hoy => marca cumplido sin valor"
+  }
+}

@@ -1,0 +1,51 @@
+{
+    "compilerOptions": {
+        /* Lenguaje y medio ambiente */
+        "target": "ESNext", //Establezca la versión del lenguaje JavaScript para el JavaScript emitido e incluya declaraciones de biblioteca compatibles.
+
+        /* Módulos */
+        "module": "ESNext", //Especifique qué código de módulo se genera.
+        "moduleResolution": "bundler", //Especifica cómo TypeScript busca un archivo desde un especificador de módulo determinado.
+
+        /* Compatibilidad con JavaScript */
+        "allowJs": true /* Permite que los archivos JavaScript formen parte de tu programa. Usa la opción "checkJS" para obtener errores de estos archivos. */,
+
+        /* Emitir */
+        "noEmit": true, //Deshabilitar la emisión de archivos desde una compilación
+
+        /* Restricciones de interoperabilidad */
+        "isolatedModules": true, // Asegúrese de que cada archivo pueda transpilarse de forma segura sin depender de otras importaciones.
+        "forceConsistentCasingInFileNames": true /* Asegúrese de que los nombres de archivo sean correctos en cuanto a mayúsculas y minúsculas en las importaciones. */,
+        "esModuleInterop": true /* Emite JavaScript adicional para facilitar la importación de módulos CommonJS. Esto habilita "allowSyntheticDefaultImports" para compatibilidad de tipos. */,
+
+        /* Comprobación de tipos */
+        "strict": true /* Habilitar todas las opciones de verificación de tipos estricta. */,
+        // "noImplicitAny": false /* Habilitar informes de errores para expresiones y declaraciones con un tipo 'any' implícito. */,
+        // "strictNullChecks": true, /* Al comprobar tipos, se tienen en cuenta 'null' y 'undefined'. */
+        // "strictFunctionTypes": true, /* Al asignar funciones, se comprueba que los parámetros y los valores de retorno sean compatibles con los subtipos. */
+        // "strictBindCallApply": true, /* Se comprueba que los argumentos de los métodos 'bind', 'call' y 'apply' coincidan con los de la función original. */
+        // "strictPropertyInitialization": true, /* Se comprueban las propiedades de clase declaradas, pero no definidas, en el constructor. */
+        // "strictBuiltinIteratorReturn": true, /* Los iteradores integrados se instancian con un tipo 'TReturn' de 'undefined' en lugar de 'any'. */
+        // "noImplicitThis": true, /* Se activa el informe de errores cuando 'this' recibe el tipo 'any'. */
+        // "useUnknownInCatchVariables": true, /* Las variables de la cláusula catch predeterminadas son 'unknown' en lugar de 'any'. */
+        // "alwaysStrict": true, /* Asegurarse de que 'use strict' siempre se emita. */
+        // "noUnusedLocals": true, /* Habilitar el informe de errores cuando no se leen las variables locales. */
+        // "noUnusedParameters": true, /* Generar un error cuando no se lee un parámetro de función. */
+        // "exactOptionalPropertyTypes": true, /* Interpretar los tipos de propiedad opcionales tal como están escritos, en lugar de añadir 'undefined'. */
+        // "noImplicitReturns": true, /* Habilitar el informe de errores para las rutas de código que no retornan explícitamente en una función. */
+        // "noFallthroughCasesInSwitch": true, /* Habilitar el informe de errores para los casos fallthrough en las sentencias switch. */
+        // "noUncheckedIndexedAccess": true, /* Añade 'undefined' a un tipo cuando se accede mediante un índice. */
+        // "noImplicitOverride": true, /* Garantiza que los miembros de anulación en las clases derivadas se marquen con un modificador de anulación. */
+        // "noPropertyAccessFromIndexSignature": true, /* Aplica el uso de descriptores de acceso indexados para las claves declaradas mediante un tipo indexado. */
+        // "allowUnusedLabels": true, /* Desactiva el informe de errores para etiquetas no utilizadas. */
+        // "allowUnreachableCode": true, /* Desactiva el informe de errores para código inaccesible. */
+
+        "skipLibCheck": true /* Omitir la comprobación de tipos de todos los archivos .d.ts. */,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["resources/js/*"]
+        },
+        "jsx": "react-jsx"
+    },
+    "include": ["resources/js", "resources/**/*.d.ts"]
+}

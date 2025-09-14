@@ -144,12 +144,11 @@ class Tarea extends Model
 
   public function scopeFiltro(Builder $q, array $f = []): Builder
   {
-    return $q
-      ->when(isset($f['estado']), fn($qq) => $qq->where('estado', $f['estado']))
-      ->when(isset($f['proyecto_id']), fn($qq) => $qq->where('proyecto_id', $f['proyecto_id']))
-      ->when(isset($f['responsable_id']), fn($qq) => $qq->where('responsable_id', $f['responsable_id']))
-      ->when(isset($f['area_id']), fn($qq) => $qq->where('area_id', $f['area_id']))
-      ->when(isset($f['contexto_id']), fn($qq) => $qq->where('contexto_id', $f['contexto_id']));
+    return $q->when(!empty($f['estado']) && $f['estado'] !== 'all', fn($qq) => $qq->where('estado', $f['estado']))
+      ->when(!empty($f['proyecto_id']) && $f['proyecto_id'] !== 'all', fn($qq) => $qq->where('proyecto_id', $f['proyecto_id']))
+      ->when(!empty($f['responsable_id']) && $f['responsable_id'] !== 'all', fn($qq) => $qq->where('responsable_id', $f['responsable_id']))
+      ->when(!empty($f['area_id']) && $f['area_id'] !== 'all', fn($qq) => $qq->where('area_id', $f['area_id']))
+      ->when(!empty($f['contexto_id']) && $f['contexto_id'] !== 'all', fn($qq) => $qq->where('contexto_id', $f['contexto_id']));
   }
 
   /* =========================

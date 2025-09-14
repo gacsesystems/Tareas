@@ -26,6 +26,7 @@ type Task = {
   pomos_estimados?: number | null;
   pomos_realizados?: number | null;
   bloqueada?: boolean;
+  tiempo_total_min?: number | null;
 };
 
 type Props = {
@@ -119,6 +120,14 @@ export function TaskMetaBar({ task, onDivide, onReestimate }: Props) {
 
   const ratio = overrunRatio(task); // > 0.30 => alerta
   const slaClass = slaSemaforoClass(task.sla_fecha);
+
+  // Overrun >30%
+  const hasOverrun = (t: Task) => {
+    const est = Math.max(0, (t.pomos_estimados ?? 0) * 25);
+    if (est === 0) return false;
+    const real = Math.max(0, t.tiempo_total_min ?? 0);
+    return real > est * 1.3;
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -221,6 +230,14 @@ export function TaskMetaBar({ task, onDivide, onReestimate }: Props) {
             <Button size="sm" variant="outline" className="h-7 bg-transparent" onClick={() => onDivide?.(task)}>Dividir</Button>
             <Button size="sm" variant="outline" className="h-7 bg-transparent" onClick={() => onReestimate?.(task)}>Re-estimar</Button>
           </div>
+        </div>
+      )}
+
+      {hasOverrun(task) && (
+        <div className="mt-2 text-[12px] rounded-md border border-amber-300 bg-amber-50 px-2 py-1 text-amber-800 flex items-center gap-2">
+          ⚠️ Overrun &gt;30% vs estimado. Sugerido:
+          <Button size="sm" variant="outline" onClick={() => /* abre modal subtareas */ onDivide?.(task)}>Dividir</Button>
+          <Button size="sm" variant="outline" onClick={() => /* ui re-estimar */ onReestimate?.(task)}>Re-estimar</Button>
         </div>
       )}
     </div>

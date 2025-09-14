@@ -113,6 +113,77 @@ export function TodayView() {
     };
   }, [tasksToday, capacidadDia]);
 
+  // === Helpers de fecha/tiempo
+  const daysDiff = (d?: string | null) => {
+    if (!d) return null;
+    const a = new Date(new Date(d).toDateString()).getTime();
+    const b = new Date(new Date().toDateString()).getTime();
+    return Math.floor((a - b) / (1000 * 60 * 60 * 24));
+  };
+
+  const sinceDays = (d?: string | null) => {
+    if (!d) return null;
+    const ms = Date.now() - new Date(d).getTime();
+    return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
+  };
+
+  // Eisenhower (Q1..Q4) derivado de flags
+  const getQuadrant = (t: AnyTask) => {
+    const imp = !!t.eisen_importante;
+    const urg = !!t.eisen_urgente;
+    if (imp && urg) return "Q1";
+    if (imp && !urg) return "Q2";
+    if (!imp && urg) return "Q3";
+    return "Q4";
+  };
+
+  // Color del chip Q*
+  const quadrantColor = (q: string) => {
+    switch (q) {
+      case "Q1": return "bg-red-100 text-red-800 border-red-200";
+      case "Q2": return "bg-green-100 text-green-800 border-green-200";
+      case "Q3": return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  // SLA semáforo por sla_fecha
+  const slaSemaforo = (t: AnyTask) => {
+    const d = daysDiff(t.sla_fecha);
+    if (d === null) return { label: "sin SLA", className: "bg-gray-100 text-gray-700" };
+    if (d < 0) return { label: "SLA vencido", className: "bg-red-100 text-red-700" };
+    if (d <= 2) return { label: `SLA ${d}d`, className: "bg-amber-100 text-amber-800" };
+    return { label: `SLA OK (${d}d)`, className: "bg-emerald-100 text-emerald-800" };
+  };
+
+  // Due D-? por fecha_limite
+  const dueBadge = (t: AnyTask) => {
+    const d = daysDiff(t.fecha_limite);
+    if (d === null) return null;
+    if (d < 0) return { label: `Vencida ${Math.abs(d)}d`, className: "bg-red-100 text-red-700" };
+    if (d === 0) return { label: "Hoy", className: "bg-amber-100 text-amber-800" };
+    return { label: `D-${d}`, className: "bg-blue-100 text-blue-800" };
+  };
+
+
+
+  // Etiquetas legibles de relaciones (con fallback a *_id)
+  const projectLabel = (t: AnyTask) =>
+    t.proyecto?.nombre ?? (t.proyecto_id ? `Proyecto #${t.proyecto_id}` : null);
+  const areaLabel = (t: AnyTask) =>
+    t.area?.nombre ?? (t.area_id ? `Área #${t.area_id}` : null);
+  const ctxLabel = (t: AnyTask) =>
+    t.contexto?.nombre ?? (t.contexto_id ? `Ctx #${t.contexto_id}` : null);
+  const respLabel = (t: AnyTask) =>
+    t.responsable?.nombre ?? (t.responsable_id ? `Resp #${t.responsable_id}` : null);
+
+  const logPomodoro = (taskId: number, minutos = 25) => {
+    router.post(route("tareas.pomodoro", taskId), { minutos }, { preserveScroll: true });
+  };
+  const addInteres = (taskId: number) => {
+    router.post(route("tareas.interes", taskId), {}, { preserveScroll: true });
+  };
+
   // 7) Card de tarea (respetando tu UI)
   const TaskCard = ({ task, showActions = true }: { task: AnyTask; showActions?: boolean; }) => (
     <div className="flex items-center gap-3 p-3 bg-card rounded-lg border hover:shadow-sm transition-shadow">
@@ -164,14 +235,56 @@ export function TodayView() {
           }}
         />
 
+        {/* SLA + Due + Delegación + Interés */}
+        <div className="flex items-center gap-2 mt-2 flex-wrap">
+          {/* SLA */}
+          {(() => {
+            const sla = slaSemaforo(task);
+            return <Badge variant="secondary" className={`text-xs ${sla.className}`}>{sla.label}</Badge>;
+          })()}
+
+          {/* Due */}
+          {(() => {
+            const due = dueBadge(task);
+            return due ? <Badge variant="outline" className={`text-xs ${due.className}`}>{due.label}</Badge> : null;
+          })()}
+
+          {/* Delegación */}
+          {(task.delegation_level_applied || task.delegation_level_rec) && (
+            <Badge variant="outline" className="text-xs">
+              Lvl {task.delegation_level_applied ?? "—"}{/* */}{task.delegation_level_rec ? ` (rec ${task.delegation_level_rec})` : ""}
+            </Badge>
+          )}
+
+          {/* Responsable */}
+          {respLabel(task) && (<Badge variant="outline" className="text-xs">{respLabel(task)}</Badge>)}
+
+          {/* Proyecto / Área / Contexto */}
+          {projectLabel(task) && (<Badge variant="outline" className="text-xs">{projectLabel(task)}</Badge>)}
+          {areaLabel(task) && (<Badge variant="outline" className="text-xs">{areaLabel(task)}</Badge>)}
+          {ctxLabel(task) && (<Badge variant="secondary" className="text-xs">{ctxLabel(task)}</Badge>)}
+
+          {/* 👀 Interés */}
+          <div className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <span>👀 {task.interest_hits ?? 0}</span>
+            {task.interest_last_at && (
+              <Badge variant="outline" className="text-[10px]">
+                preguntaron hace {sinceDays(task.interest_last_at)}d
+              </Badge>
+            )}
+            <Button type="button" size="sm" variant="ghost" onClick={() => addInteres(task.id)}>+</Button>
+            {/* Botón “–” solo si implementas ruta */}
+          </div>
+        </div>
+
         <div className="flex items-center gap-2 mt-2 flex-wrap">
           <Badge variant="secondary" className="text-xs">
             <Clock className="h-3 w-3 mr-1" />
             {task.pomos_realizados ?? 0}/{task.pomos_estimados ?? 0} pomos
           </Badge>
 
-          <Badge className={`text-xs ${getQuadrantColor(task.quadrant)}`}>
-            {task.quadrant ?? "-"}
+          <Badge className={`text-xs ${quadrantColor(getQuadrant(task))}`}>
+            {getQuadrant(task)}
           </Badge>
 
           <div className={`w-2 h-2 rounded-full ${getMoscowColor(task.moscow)}`} title={`MoSCoW: ${task.moscow ?? "-"}`} />
@@ -202,13 +315,13 @@ export function TodayView() {
             </Badge>)}
         </div>
 
-        {task.proyecto_id && (<p className="text-xs text-muted-foreground mt-1">📁 {task.proyecto_id}</p>)}
+        {projectLabel(task) && (<p className="text-xs text-muted-foreground mt-1">📁 {projectLabel(task)}</p>)}
 
         {task.detalle_md && (<p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.detalle_md}</p>)}
       </div>
 
       <div className="flex items-center gap-2">
-        <Button size="sm" variant="outline">
+        <Button size="sm" variant="outline" onClick={() => logPomodoro(task.id, 25)} title="Log 25 min">
           <Play className="h-4 w-4" />
         </Button>
       </div>

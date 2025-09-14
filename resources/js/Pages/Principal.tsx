@@ -15,6 +15,8 @@ import { FilesView } from "./FilesView";
 import { ResourcesView } from "./ResourcesView";
 import { PeopleView } from "./PeopleView";
 import { Catalogos } from "./Catalogos";
+import TareasLista from "./TareasLista";
+import TareasKanban from "./TareasKanban";
 
 const Principal: React.FC = () => {
   const [activeView, setActiveView] = useState("today");
@@ -53,6 +55,10 @@ const Principal: React.FC = () => {
           <DelegationView />
         ) : activeView === "catalogos" ? (
           <Catalogos />
+        ) : activeView === "tareas" ? (
+          <TareasLista />
+        ) : activeView === "tareas_kanban" ? (
+          <TareasKanban />
         ) : (
           <TodayView />
         )}

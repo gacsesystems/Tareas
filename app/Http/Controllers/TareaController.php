@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class TareaController extends Controller
 {
@@ -30,7 +31,7 @@ class TareaController extends Controller
       ->paginate(30)
       ->withQueryString();
 
-    return Inertia::render('Tasks/Index', [
+    return Inertia::render('TareasLista', [
       'filters' => $f,
       'tareas'  => $tareas,
       'proyectos'   => Proyecto::select('id', 'nombre')->orderBy('nombre')->get(),
@@ -182,5 +183,96 @@ class TareaController extends Controller
     $tarea->save();
 
     return back();
+  }
+
+  public function kanban(Request $request)
+  {
+    $f = $request->only(['proyecto_id', 'responsable_id', 'area_id', 'contexto_id']);
+
+    // Trae todas las tareas visibles para el tablero, sin paginar
+    $tareas = Tarea::with(['proyecto:id,nombre', 'responsable:id,nombre', 'area:id,nombre', 'contexto:id,nombre'])
+      ->filtro($f)
+      ->orderByDesc('frog')
+      ->orderByDesc('is_rock')
+      ->orderBy('ranking')
+      ->orderByDesc('score')
+      ->get();
+
+    // “3 últimos responsables” (puedes refinar el criterio)
+    $ultimosResponsables = Persona::select('id', 'nombre')
+      ->where('activo', true)
+      ->orderBy('updated_at', 'desc')
+      ->take(3)
+      ->get();
+
+    return Inertia::render('TareasKanban', [
+      'filters'   => $f,
+      'tareas'    => $tareas,
+      'proyectos' => Proyecto::select('id', 'nombre')->orderBy('nombre')->get(),
+      'personas'  => Persona::select('id', 'nombre')->where('activo', true)->orderBy('nombre')->get(),
+      'areas'     => Area::select('id', 'nombre')->orderBy('nombre')->get(),
+      'contextos' => Contexto::select('id', 'nombre')->orderBy('nombre')->get(),
+      'ultimosResponsables' => $ultimosResponsables,
+    ]);
+  }
+
+  /**
+   * Reordena una tarjeta al soltarla en otra columna/posición.
+   * Espera: { id, estado, after_id?, before_id? }
+   * Calcula ranking nuevo entre vecinos (espaciado) y mueve estado.
+   */
+  public function kanbanReorder(Request $request)
+  {
+    $data = $request->validate([
+      'id'        => ['required', 'integer', 'exists:tareas,id'],
+      'estado'    => ['required', Rule::in(['backlog', 'siguiente', 'hoy', 'en_curso', 'en_revision', 'bloqueada', 'hecha'])],
+      'after_id'  => ['nullable', 'integer', 'exists:tareas,id'],
+      'before_id' => ['nullable', 'integer', 'exists:tareas,id'],
+    ]);
+
+    return DB::transaction(function () use ($data) {
+      /** @var Tarea $t */
+      $t = Tarea::lockForUpdate()->findOrFail($data['id']);
+      $t->estado = $data['estado'];
+
+      // ranking target tomando vecinos de la misma columna
+      $getRank = function (?int $id): ?int {
+        if (!$id) return null;
+        $x = Tarea::select('id', 'ranking')->find($id);
+        return $x?->ranking;
+      };
+
+      $afterRank  = $getRank($data['after_id']  ?? null);
+      $beforeRank = $getRank($data['before_id'] ?? null);
+
+      if (!is_null($afterRank) && !is_null($beforeRank)) {
+        // colocar entre ambos
+        $t->ranking = (int) floor(($afterRank + $beforeRank) / 2);
+      } elseif (!is_null($afterRank)) {
+        // poner debajo del "after" (más grande)
+        $t->ranking = $afterRank + 100;
+      } elseif (!is_null($beforeRank)) {
+        // poner encima del "before" (más chico)
+        $t->ranking = max(0, $beforeRank - 100);
+      } else {
+        // columna vacía: set punto medio por defecto
+        $t->ranking = 1000;
+      }
+
+      // normalizaciones/coherencia rápida
+      if ($t->frog && $t->estado !== 'hoy') {
+        $t->frog = false;
+        $t->frog_date = null;
+      }
+      if ($t->bloqueada && $t->estado !== 'bloqueada') {
+        $t->bloqueada = false;
+        $t->bloqueo_motivo = null;
+      }
+
+      $t->calcularScore();
+      $t->save();
+
+      return back();
+    });
   }
 }

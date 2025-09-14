@@ -1,5 +1,5 @@
 import { Button } from "@/Components/ui/button";
-import { Calendar, DollarSign, FolderOpen, Home, Inbox, PenTool, Target, Users, Clock, FileText, BookOpen, ExternalLink, Settings } from "lucide-react";
+import { Calendar, DollarSign, FolderOpen, Home, Inbox, PenTool, Target, Users, Clock, FileText, BookOpen, ExternalLink, Settings, List, Columns } from "lucide-react";
 import { router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 
@@ -17,6 +17,8 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
     { id: "projects_dashboard", label: "Dashboard Proyectos", icon: FolderOpen, onClick: () => onViewChange("projects") },
     { id: "projects_crud", label: "Proyectos (CRUD)", icon: ExternalLink, onClick: () => router.visit(route("proyectos.index")) },
 
+    { id: "tareas", label: "Tareas(Lista)", icon: List },
+    { id: "tareas_kanban", label: "Tareas(Kanban)", icon: Columns },
     { id: "habits", label: "Hábitos", icon: Target },
     { id: "events", label: "Eventos", icon: Calendar },
     { id: "timeblocks", label: "Time Blocks", icon: Clock },

@@ -153,3 +153,7 @@ Route::post('tareas/{tarea}/interes',   [TareaController::class, 'interes'])->na
 Route::post('tareas/{tarea}/boost',     [TareaController::class, 'boost'])->name('tareas.boost');
 Route::post('tareas/{tarea}/bloqueo',   [TareaController::class, 'bloqueo'])->name('tareas.bloqueo');
 Route::post('tareas/{tarea}/pomodoro',  [TareaController::class, 'pomodoro'])->name('tareas.pomodoro');
+
+// Kanban (vista y reorder)
+Route::get('tareas/kanban', [TareaController::class, 'kanban'])->name('tareas.kanban');
+Route::post('tareas/kanban-reorder', [TareaController::class, 'kanbanReorder'])->name('tareas.kanban.reorder');

@@ -26,8 +26,8 @@ class TareaRequest extends FormRequest
 
       'responsable_id'       => ['nullable', 'exists:personas,id'],
       'tipo'                 => ['required', Rule::in(['tarea', 'bug', 'mejora', 'investigacion', 'consumo'])],
-      'area_id'              => ['required', 'exists:areas,id'],
-      'contexto_id'          => ['required', 'exists:contextos,id'],
+      'area_id'              => ['nullable', 'exists:areas,id'],
+      'contexto_id'          => ['nullable', 'exists:contextos,id'],
 
       'moscow'               => ['nullable', Rule::in(['M', 'S', 'C', 'W'])],
       'horizon'              => ['nullable', Rule::in(['H1', 'H2', 'H3'])],
@@ -61,7 +61,7 @@ class TareaRequest extends FormRequest
 
       'riesgo_oportunidad'   => ['nullable', 'numeric', 'min:-0.20', 'max:0.20'],
 
-      'habito_id'            => ['nullable', 'exists:habito,id'],
+      'habito_id'            => ['nullable', 'exists:habitos,id'],
       'dificultad'           => ['nullable', Rule::in(['trivial/mecánico', 'requiere_pensar_leer_investigar', 'muy_exigente'])],
       'kaizen'               => ['sometimes', 'boolean'],
 
@@ -102,6 +102,12 @@ class TareaRequest extends FormRequest
       'horizon'         => $this->horizon         === '' ? null : $this->horizon,
       'kash'            => $this->kash            === '' ? null : $this->kash,
       'bloqueo_motivo'  => $this->bloqueo_motivo  === '' ? null : $this->bloqueo_motivo,
+      'area_id'        => $this->area_id        === '' ? null : $this->area_id,
+      'contexto_id'    => $this->contexto_id    === '' ? null : $this->contexto_id,
     ]);
+
+    if (!$this->filled('fecha') && $this->filled('fecha_limite')) {
+      $this->merge(['fecha' => now()->toDateString()]);
+    }
   }
 }

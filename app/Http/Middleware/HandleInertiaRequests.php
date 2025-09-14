@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\Area;
+use App\Models\Contexto;
 
 
 class HandleInertiaRequests extends Middleware
@@ -44,6 +46,8 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn() => $request->session()->get('message'),
                 'ok' => fn() => $request->session()->get('ok'),
             ],
+            'areas' => fn() => Area::select('id', 'nombre')->orderBy('nombre')->get(),
+            'contextos' => fn() => Contexto::select('id', 'nombre')->orderBy('nombre')->get(),
         ];
     }
 }

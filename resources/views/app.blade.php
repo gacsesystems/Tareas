@@ -8,7 +8,7 @@
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])
   </head>
-  <body class="antialiased">
+  <body class="antialiased dark">
     @inertia
   </body>
 </html>

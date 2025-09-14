@@ -10,8 +10,8 @@ class AreaController extends Controller
 {
   public function index()
   {
-    return Inertia::render('Catalogos/Areas/Index', [
-      'items' => Area::orderBy('nombre')->get(),
+    return Inertia::render('Catalogos/Areas', [
+      'areas' => Area::orderBy('nombre')->get(),
     ]);
   }
 

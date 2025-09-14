@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 
 class TareaController extends Controller
 {
@@ -52,6 +53,7 @@ class TareaController extends Controller
 
   public function store(TareaRequest $request): RedirectResponse
   {
+    Log::info('Tareas.store raw', $request->all());
     return DB::transaction(function () use ($request) {
       $tarea = new Tarea($request->validated());
       // defaults suaves

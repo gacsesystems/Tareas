@@ -307,14 +307,14 @@ return new class extends Migration
              * UI: Icono/chip (🐛 bug, 🔬 investigación).
              * Tip: Filtro por tipo en listas.
              */
-            $t->foreignId('area_id')->default(1)->constrained('areas');
+            $t->foreignId('area_id')->nullable()->constrained('areas');
             /**
              * Qué es: Área (Empresa, Personal, Ventas, Finanzas…).
              * UI: Chips por área; color consistente en todo el app.
              * Tip: Vista “por área” para balance vida/trabajo.
              */
             // $t->enum('contexto', ['casa', 'oficina', 'ordenador', 'telefono', 'internet', 'errands', 'reuniones'])->nullable(); // Las errands son recados fuera de casa/oficina
-            $t->foreignId('contexto_id')->default(1)->constrained('contextos');
+            $t->foreignId('contexto_id')->nullable()->constrained('contextos');
             /**
              * Qué es: Contexto de ejecución (PC, Teléfono, Casa, Oficina).
              * UI: Iconos (💻 📱 🏠 🏢).

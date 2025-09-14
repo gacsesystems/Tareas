@@ -8,10 +8,13 @@ import { Progress } from "@/Components/ui/progress";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@/Components/ui/dropdown-menu";
 import { PomodoroTimer } from "./Pomodoro";
 import TareasForm from "./TareasForm";
+import { TaskMetaBar } from "./TaskMetaBar";
 import { CheckCircle2, Circle, Star, Clock, DollarSign, Play, Plus, Zap, AlertTriangle, Flame, Edit, MoreHorizontal, TrendingUp, Target, } from "lucide-react";
 
 // Tip: ajusta el tipo si quieres tipado estricto de Tarea
 type AnyTask = any;
+
+type Catalogo = { id: number; nombre: string };
 
 interface DashboardPageProps {
   tasksToday: AnyTask[];
@@ -25,7 +28,7 @@ export function TodayView() {
   // 1) Datos reales desde el servidor (pasados en Inertia::render)
   //    Espera que tu controlador comparta: tasksToday (array) y, opcionalmente, capacidadDia (número)
   const { tasksToday = [], capacidadDia: capacidadDiaProp } = usePage<DashboardPageProps>().props;
-
+  const { areas = [], contextos = [] } = usePage().props as { areas?: Catalogo[]; contextos?: Catalogo[] };
   // 2) UI local (solo para modal del form)
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<AnyTask | null>(null);
@@ -148,6 +151,18 @@ export function TodayView() {
             </DropdownMenu>
           )}
         </div>
+        <TaskMetaBar
+          task={task}
+          onDivide={(t) => {
+            // abre modal para crear subtareas
+            // por ahora: console.log; cámbialo por tu flujo
+            console.log("Dividir tarea", t.id);
+          }}
+          onReestimate={(t) => {
+            // abre UI para ajustar pomos_estimados
+            console.log("Re-estimar tarea", t.id);
+          }}
+        />
 
         <div className="flex items-center gap-2 mt-2 flex-wrap">
           <Badge variant="secondary" className="text-xs">
@@ -243,7 +258,7 @@ export function TodayView() {
       {/* Modal formulario (crear/editar) */}
       {showTaskForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <TareasForm initial={editingTask ?? undefined} submitRoute={editingTask ? "tareas.update" : "tareas.store"} method={editingTask ? "put" : "post"} onClose={() => { setShowTaskForm(false); setEditingTask(null); }} />
+          <TareasForm initial={editingTask ?? undefined} submitRoute={editingTask ? "tareas.update" : "tareas.store"} method={editingTask ? "put" : "post"} onClose={() => { setShowTaskForm(false); setEditingTask(null); }} areas={areas} contextos={contextos} />
         </div>
       )}
 

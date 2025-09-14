@@ -197,7 +197,7 @@ class Tarea extends Model
       // sliders 0..10 (null -> 0)
       $impacto     = (int)($this->impacto     ?? 0);
       $valor       = (int)($this->valor       ?? 0);
-      $urgencia    = (int)($this->urgenciaDerivada->get() ?? 0);
+      $urgencia    = (int)($this->urgenciaDerivada ?? 0);
       $eficiencia  = (int)($this->eficiencia  ?? 0);
       $stake       = (int)($this->stakeholders ?? 0);
 
@@ -241,7 +241,7 @@ class Tarea extends Model
   public function calcularScore(): float
   {
     // Base MCDA (0..100)
-    $base = (float)$this->mcdaBase->get();
+    $base = (float)$this->mcdaBase;
 
     // Bonus visuales/estratégicos
     $mult = 1.0;
@@ -253,9 +253,9 @@ class Tarea extends Model
     if ($this->kaizen)           $mult *= 1.05;
 
     // Interés, Boost, Decay y Riesgo/Oportunidad
-    $mult *= (float)$this->interesMultiplier->get();
-    $mult *= (float)$this->boostActivo->get();
-    $mult *= (float)$this->decayMultiplier->get();
+    $mult *= (float)$this->interesMultiplier;
+    $mult *= (float)$this->boostActivo;
+    $mult *= (float)$this->decayMultiplier;
 
     if (!is_null($this->riesgo_oportunidad)) {
       $ro = (float)$this->riesgo_oportunidad; // -0.20 .. +0.20

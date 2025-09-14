@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tarea;
+use App\Models\Area;
+use App\Models\Contexto;
 use Inertia\Inertia;
 
 class PrincipalController extends Controller
@@ -37,6 +39,8 @@ class PrincipalController extends Controller
     return Inertia::render('Principal', [
       'tasksToday'   => $tasksToday,
       'capacidadDia' => 480,
+      'areas' => Area::select('id', 'nombre')->orderBy('nombre')->get(),
+      'contextos' => Contexto::select('id', 'nombre')->orderBy('nombre')->get(),
     ]);
   }
 }

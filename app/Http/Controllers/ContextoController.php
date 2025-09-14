@@ -10,8 +10,8 @@ class ContextoController extends Controller
 {
   public function index()
   {
-    return Inertia::render('Catalogos/Contextos/Index', [
-      'items' => Contexto::orderBy('nombre')->get(),
+    return Inertia::render('Catalogos/Contextos', [
+      'contextos' => Contexto::orderBy('nombre')->get(),
     ]);
   }
 

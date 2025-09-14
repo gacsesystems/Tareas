@@ -1,5 +1,5 @@
 import { Button } from "@/Components/ui/button";
-import { Calendar, DollarSign, FolderOpen, Home, Inbox, PenTool, Target, Users, Clock, FileText, BookOpen, ExternalLink } from "lucide-react";
+import { Calendar, DollarSign, FolderOpen, Home, Inbox, PenTool, Target, Users, Clock, FileText, BookOpen, ExternalLink, Settings } from "lucide-react";
 import { router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 
@@ -27,6 +27,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
     { id: "journal", label: "Diario", icon: PenTool },
     { id: "delegation", label: "Delegación", icon: Users },
     { id: "people", label: "Personas", icon: Users },
+    { id: "catalogos", label: "Catálogos", icon: Settings },
   ];
 
   return (

@@ -24,6 +24,9 @@ use App\Http\Controllers\MovtoRecurrenteController;
 use App\Http\Controllers\EntradaDiarioController;
 use App\Http\Controllers\PrincipalController;
 use App\Http\Controllers\TareaQuickController;
+use App\Http\Controllers\CatalogoController;
+use App\Http\Controllers\AreaController;
+use App\Http\Controllers\ContextoController;
 use Inertia\Inertia;
 
 Route::prefix('proyectos')->name('proyectos.')->group(function () {
@@ -139,3 +142,14 @@ Route::post('proyecto-objetivos/{objetivo}/toggle',     [ProyectoObjetivoControl
 Route::post('proyectos/{proyecto}/objetivos/reorder',   [ProyectoObjetivoController::class, 'reorder'])->name('proyectos.objetivos.reorder');
 
 Route::post('proyectos/{proyecto}/kanban-reorder', [ProyectoController::class, 'kanbanReorder'])->name('proyectos.kanban.reorder');
+
+Route::get('catalogos', [CatalogoController::class, 'index'])->name('catalogos.index'); // Página combinada
+
+Route::resource('areas', AreaController::class)->only(['index', 'store', 'update', 'destroy']);
+Route::resource('contextos', ContextoController::class)->only(['index', 'store', 'update', 'destroy']);
+
+Route::get('tareas', [TareaController::class, 'index'])->name('tareas.index');
+Route::post('tareas/{tarea}/interes',   [TareaController::class, 'interes'])->name('tareas.interes');
+Route::post('tareas/{tarea}/boost',     [TareaController::class, 'boost'])->name('tareas.boost');
+Route::post('tareas/{tarea}/bloqueo',   [TareaController::class, 'bloqueo'])->name('tareas.bloqueo');
+Route::post('tareas/{tarea}/pomodoro',  [TareaController::class, 'pomodoro'])->name('tareas.pomodoro');

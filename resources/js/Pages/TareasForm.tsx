@@ -83,9 +83,15 @@ export default function TareasForm({ initial, onClose, submitRoute, // string ro
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting", data);
     if (method === "put" && initial?.id) {
+      console.log("Updating", initial.id);
       router.put(route(submitRoute, initial.id), data, { onSuccess: () => onClose?.(), });
     } else {
+      console.log("Creating");
+      console.log(route(submitRoute));
+      console.log(data);
+      console.log(method);
       router.post(route(submitRoute), data, { onSuccess: () => onClose?.(), });
     }
   };

@@ -18,21 +18,26 @@ class ProyectoController extends Controller
   {
     $f = $request->only(['status', 'area_id', 'prioridad', 'estrategico']);
 
-    $proyectos = Proyecto::with([
-      'area:id,nombre',
-      'owner:id,nombre',
-      'proximaAccionTarea:id,titulo,estado,score,frog,is_rock,ranking'
-    ])
+    $base = Proyecto::query()->with(['area:id,nombre', 'owner:id,nombre', 'proximaAccionTarea:id,titulo,estado,score,frog,is_rock,ranking'])
       ->when(isset($f['status']), fn($q) => $q->where('status', $f['status']))
       ->when(isset($f['area_id']), fn($q) => $q->where('area_id', $f['area_id']))
       ->when(isset($f['prioridad']), fn($q) => $q->where('prioridad', $f['prioridad']))
-      ->when(isset($f['estrategico']), fn($q) => $q->where('estrategico', (bool)$f['estrategico']))
-      ->ordenDashboard()
-      ->paginate(24)
-      ->withQueryString();
+      ->when(isset($f['estrategico']), fn($q) => $q->where('estrategico', (bool)$f['estrategico']));
 
-    return Inertia::render('Projects/Index', [
+    // Resumen con los mismos filtros aplicados
+    $summary = [
+      'total'        => (clone $base)->count(),
+      'abiertos'     => (clone $base)->where('status', 'abierto')->count(),
+      'cerrados'     => (clone $base)->where('status', 'cerrado')->count(),
+      'estrategicos' => (clone $base)->where('estrategico', true)->count(),
+      'avg_progreso' => round((clone $base)->avg('progreso_pct') ?? 0, 1),
+    ];
+
+    $proyectos = (clone $base)->ordenDashboard()->paginate(24)->withQueryString();
+
+    return Inertia::render('Proyectos/Index', [
       'filters'   => $f,
+      'summary'   => $summary,
       'proyectos' => $proyectos,
       'areas'     => Area::select('id', 'nombre')->orderBy('nombre')->get(),
     ]);

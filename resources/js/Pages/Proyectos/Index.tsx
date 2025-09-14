@@ -65,7 +65,7 @@ type Proyecto = {
   nombre: string;
   descripcion?: string | null;
   area_id?: number | null;
-  area?: { id: number; nombre: string };
+  area?: { id: number; nombre: string } | null;
   status: "abierto" | "cerrado";
   prioridad: "baja" | "media" | "alta";
   estrategico: boolean;
@@ -111,10 +111,19 @@ type PageProps = {
   proyectos: Paginator<Proyecto>;
   areas: Area[];
   owners?: Persona[];
+  summary: {
+    total: number;
+    abiertos: number;
+    cerrados: number;
+    estrategicos: number;
+    avg_progreso: number;
+  };
+
 };
 
 export default function ProjectsIndex() {
-  const { proyectos, areas, filters } = usePage<PageProps>().props;
+  const { proyectos, areas, filters, summary } = usePage<PageProps>().props;
+
 
   // ---------- UI State ----------
   const [showGantt, setShowGantt] = useState(false);

@@ -12,12 +12,12 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import { Label } from "@/Components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/Components/ui/select";
 import { Progress } from "@/Components/ui/progress";
-import { ArrowLeft, RefreshCw, CheckCircle2, Target, Settings2, Plus, Pencil, Trash2, ArrowUp, ArrowDown, ArrowUpRightFromCircle, Calendar, Star, AlertTriangle, Clock, GripVertical, ArrowRight } from "lucide-react";
+import { ArrowLeft, RefreshCw, CheckCircle2, Target, Settings2, Plus, Pencil, Trash2, ArrowUpRightFromCircle, Calendar, Star } from "lucide-react";
 import { route } from "ziggy-js";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent, DragStartEvent, DragOverlay, } from "@dnd-kit/core";
 import { SortableContext, arrayMove, verticalListSortingStrategy, useSortable, } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ro } from "date-fns/locale";
+import { KanbanEtapas } from "./KanbanEtapas";
 
 // ===== Tipos =====
 type Area = { id: number; nombre: string };
@@ -303,134 +303,6 @@ export default function ProjectEditPage() {
     router.post(route("proyectos.etapas.sort", proyecto.id), { orden: reOrdered.map((e) => ({ id: e.id, orden: e.orden })) }, { preserveScroll: true });
   };
 
-  /** =======================
- *  KANBAN POR ETAPA
- *  ======================= */
-  // Normaliza columnas: una por etapa + "sin etapa"
-  const columnasInit = React.useMemo(() => {
-    // ids de columna: "col-null" para backlog, "col-<id>" para etapas
-    const base: Record<string, TTarea[]> = { ["col-null"]: [] };
-    proyecto.etapas?.sort((a: TEtapa, b: TEtapa) => (a.orden ?? 0) - (b.orden ?? 0)).forEach((e: TEtapa) => base[`col-${e.id}`] = []);
-
-    (proyecto.tareas as TTarea[] || []).forEach((t) => {
-      const colId = t.proyecto_etapa_id ? `col-${t.proyecto_etapa_id}` : "col-null";
-      if (!base[colId]) base[colId] = [];
-      base[colId].push(t);
-    });
-    // orden por ranking
-    Object.keys(base).forEach(k => base[k].sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0)));
-    return base;
-  }, [proyecto]);
-
-  const [cols, setCols] = React.useState<Record<string, TTarea[]>>(columnasInit);
-  const [activeTaskId, setActiveTaskId] = React.useState<number | null>(null);
-  const prevCols = React.useRef(cols);
-
-  // Utilidad: ubicar la columna por id de tarea
-  const findContainerByTaskId = (taskId: number) => {
-    const key = Object.keys(cols).find(k => cols[k].some(t => t.id === taskId));
-    return key ?? null;
-  };
-
-  // Utilidad: id de columna destino desde id "over" (puede ser tarjeta u otra columna vacía)
-  const getContainerId = (overId: string | number | null) => {
-    if (!overId) return null;
-    const s = String(overId);
-    if (s.startsWith("col-")) return s;            // soltó en el "droppable" vacío de la columna
-    // si soltó encima de una tarjeta, buscamos su contenedor
-    const numeric = Number(s);
-    if (!Number.isNaN(numeric)) return findContainerByTaskId(numeric);
-    return null;
-  };
-
-  // Overlay (drag preview)
-  const activeTask = React.useMemo(() => {
-    if (!activeTaskId) return null;
-    const c = findContainerByTaskId(activeTaskId);
-    if (!c) return null;
-    return cols[c].find(t => t.id === activeTaskId) ?? null;
-  }, [activeTaskId, cols]);
-
-  const onDragStart = (e: DragStartEvent) => {
-    const idNum = Number(e.active.id);
-    if (!Number.isNaN(idNum)) setActiveTaskId(idNum);
-  };
-
-  const onDragEnd = (e: DragEndEvent) => {
-    const { active, over } = e;
-    setActiveTaskId(null);
-    if (!over) return;
-
-    // tarea y contenedores (origen/destino)
-    const taskId = Number(active.id);
-    const fromCol = findContainerByTaskId(taskId);
-    const toCol = getContainerId(over.id);
-    if (!fromCol || !toCol) return;
-
-    // si misma columna, reordenar
-    if (fromCol === toCol) {
-      const oldIndex = cols[fromCol].findIndex(t => t.id === taskId);
-      const overIndex = cols[toCol].findIndex(t => t.id === Number(over.id)) // si soltó sobre tarjeta
-      const newIndex = over.id?.toString().startsWith("col-")
-        ? cols[toCol].length - 1        // soltó en columna vacía -> al final
-        : overIndex;
-
-      if (oldIndex === -1 || newIndex === -1) return;
-
-      const newList = arrayMove(cols[fromCol], oldIndex, newIndex);
-      const next = { ...cols, [fromCol]: newList.map((t, i) => ({ ...t, ranking: (i + 1) * 100 })) };
-
-      prevCols.current = cols;
-      setCols(next);
-
-      // persistir (mismo stage, solo orden)
-      const etapaId = fromCol === "col-null" ? null : Number(fromCol.replace("col-", ""));
-      router.post(
-        route("proyectos.kanban.reorder", proyecto.id),
-        { moves: [{ tarea_id: taskId, from_etapa_id: etapaId, to_etapa_id: etapaId, new_index: newIndex }] },
-        { preserveScroll: true, onError: () => setCols(prevCols.current), }
-      );
-      return;
-    }
-
-    // mover entre columnas
-    const fromList = [...cols[fromCol]];
-    const toList = [...cols[toCol]];
-    const oldIndex = fromList.findIndex(t => t.id === taskId);
-    if (oldIndex === -1) return;
-
-    const [moved] = fromList.splice(oldIndex, 1);
-
-    const overIndex = toCol === String(over.id) /* soltó en área vacía de columna */
-      ? toList.length     /* al final */
-      : Math.max(0, toList.findIndex(t => t.id === Number(over.id))); // sobre tarjeta -> posición
-
-    toList.splice(overIndex, 0, { ...moved, proyecto_etapa_id: toCol === "col-null" ? null : Number(toCol.replace("col-", "")) });
-
-    const next = {
-      ...cols,
-      [fromCol]: fromList.map((t, i) => ({ ...t, ranking: (i + 1) * 100 })),
-      [toCol]: toList.map((t, i) => ({ ...t, ranking: (i + 1) * 100 })),
-    };
-
-    prevCols.current = cols;
-    setCols(next);
-
-    // persistir (cambio de etapa + orden)
-    const fromId = fromCol === "col-null" ? null : Number(fromCol.replace("col-", ""));
-    const toId = toCol === "col-null" ? null : Number(toCol.replace("col-", ""));
-    router.post(route("proyectos.kanban.reorder", proyecto.id),
-      { moves: [{ tarea_id: taskId, from_etapa_id: fromId, to_etapa_id: toId, new_index: overIndex }] },
-      { preserveScroll: true, onError: () => setCols(prevCols.current), }
-    );
-  };
-
-  const columnas = React.useMemo(() => {
-    // Backlog primero, luego etapas por orden
-    const defs = [{ id: "col-null", nombre: "Sin etapa" as const, orden: -1 }, ...proyecto.etapas?.sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)).map(e => ({ id: `col-${e.id}`, nombre: e.nombre, orden: e.orden })) ?? []];
-    return defs;
-  }, [proyecto.etapas]);
-
   // ---------- OBJETIVOS ----------
   const objetivos = useOrderableList(proyecto.objetivos ?? [], {
     reorder: route("proyectos.objetivos.reorder", proyecto.id),
@@ -474,8 +346,6 @@ export default function ProjectEditPage() {
     delete: (o: Objetivo) => objetivos.deleteItem(o, '¿Eliminar objetivo?'),
   };
 
-
-
   const onDragEndObjetivos = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -493,6 +363,32 @@ export default function ProjectEditPage() {
     objetivos.setItems(reOrdered); // optimista
     const items = reOrdered.map((o) => ({ id: o.id, orden: o.orden ?? 0 }));
     router.post(route("proyectos.objetivos.reorder", proyecto.id), { items }, { preserveScroll: true });
+  }
+
+  // columnas = etapas + "Sin etapa"
+  const columnas = React.useMemo(
+    () => [{ id: null, nombre: "Sin etapa" }, ...((proyecto.etapas ?? []).sort((a, b) => a.orden - b.orden).map(e => ({ id: e.id, nombre: e.nombre })))],
+    [proyecto.etapas]
+  );
+
+  // Agrupa tareas por columna ("col-null" o "col-<id>")
+  const initialCols = React.useMemo(() => {
+    const base: Record<string, any[]> = { ["col-null"]: [] };
+    (proyecto.etapas ?? []).forEach(e => base[`col-${e.id}`] = []);
+    (proyecto.tareas ?? []).forEach((t: any) => {
+      const key = t.proyecto_etapa_id ? `col-${t.proyecto_etapa_id}` : "col-null";
+      base[key] ??= [];
+      base[key].push(t);
+    });
+    Object.keys(base).forEach(k => base[k].sort((a, b) => (a.ranking ?? 0) - (b.ranking ?? 0)));
+    return base;
+  }, [proyecto.etapas, proyecto.tareas]);
+
+  // Persistencia al mover (ajusta a tu ruta real)
+  async function onServerMove(tareaId: number, etapaId: number | null, newIndex: number) {
+    await router.post(route("proyectos.kanban.reorder", proyecto.id), {
+      moves: [{ tarea_id: tareaId, to_etapa_id: etapaId, new_index: newIndex }]
+    }, { preserveScroll: true });
   }
 
   // ======= UI =======
@@ -910,73 +806,7 @@ export default function ProjectEditPage() {
           </Card>
         </TabsContent>
       </Tabs>
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Kanban por etapa
-            <Badge variant="secondary">{Object.values(cols).reduce((a, b) => a + b.length, 0)} tareas</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {columnas.map((col: any) => {
-                const colId = col.id === "col-null" ? "col-null" : `col-${col.id}`;
-                const tareas = cols[colId] ?? [];
-                return (
-                  <KanbanColumn key={colId} columnId={colId} title={col.nombre ?? "Sin etapa"} count={tareas.length}>
-                    <SortableContext items={tareas.map(t => t.id)} strategy={verticalListSortingStrategy}>
-                      <div className="space-y-2 min-h-[12px]">
-                        {tareas.map((t) => (
-                          <SortableCard key={t.id} id={t.id}>
-                            <div className="flex items-start gap-2">
-                              <GripVertical className="mt-0.5 h-4 w-4 text-muted-foreground/70" />
-                              <div className="flex-1">
-                                <div className="font-medium text-sm">{t.titulo}</div>
-                                <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
-                                  {t.bloqueada ? (
-                                    <span className="flex items-center gap-1 text-red-600">
-                                      <AlertTriangle className="h-3 w-3" /> bloqueada
-                                    </span>
-                                  ) : (
-                                    <span className="flex items-center gap-1">
-                                      <Clock className="h-3 w-3" /> {t.estado}
-                                    </span>
-                                  )}
-                                  {t.fecha_limite && (
-                                    <Badge variant="outline" className="h-5 px-1.5">
-                                      vence {new Date(t.fecha_limite).toLocaleDateString()}
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => router.visit(route("tareas.edit", t.id))}>
-                                <ArrowRight className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </SortableCard>
-                        ))}
-                      </div>
-                    </SortableContext>
-                  </KanbanColumn>
-                );
-              })}
-            </div>
-
-            {/* Drag Overlay (preview) */}
-            <DragOverlay>
-              {activeTask ? (
-                <div className="rounded-lg border bg-background p-3 shadow-lg w-[280px]">
-                  <div className="font-medium text-sm">{activeTask.titulo}</div>
-                  <div className="mt-1 text-[11px] text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> {activeTask.estado}
-                  </div>
-                </div>
-              ) : null}
-            </DragOverlay>
-          </DndContext>
-        </CardContent>
-      </Card>
+      <KanbanEtapas columnas={columnas} initialCols={initialCols} onServerMove={onServerMove} />
     </div >
   );
 }
@@ -991,36 +821,6 @@ function SortableRow({ id, children, disabled = false, className = "", }: {
   return (
     <div ref={setNodeRef} style={style as any} className={`rounded-lg border p-3 bg-background ${isDragging ? "opacity-70 ring-2 ring-primary/30" : ""} ${className}`} {...attributes} {...listeners}>
       {children}
-    </div>
-  );
-}
-
-function SortableCard({ id, children, className = "", }: { id: string | number; children: React.ReactNode; className?: string; }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 50 : undefined,
-  };
-  return (
-    <div ref={setNodeRef} style={style as any} className={`rounded-lg border bg-background p-3 shadow-sm ${isDragging ? "opacity-80 ring-2 ring-primary/30" : ""} ${className}`} {...attributes} {...listeners}>
-      {children}
-    </div>
-  );
-}
-
-function KanbanColumn({ columnId, title, count, children, }: { columnId: string; title: string; count: number; children: React.ReactNode; }) {
-  // Hacemos que toda la columna sea droppable vacía usando un contenedor con id de columna
-  return (
-    <div id={columnId} className="rounded-lg border bg-muted/20 p-3">
-      <div className="mb-2 flex items-center justify-between">
-        <div className="font-semibold text-sm">{title}</div>
-        <Badge variant="secondary">{count}</Badge>
-      </div>
-      {/* El wrapper permite soltar en columna vacía (over.id === columnId) */}
-      <div id={columnId} className="min-h-[40px]">
-        {children}
-      </div>
     </div>
   );
 }
